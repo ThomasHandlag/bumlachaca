@@ -1,9 +1,14 @@
 # musicplayer
 
-A music player.
+A music player with attractive visualizer 😺.
 
-## show case
-<image src="img1.png" alt="prev_1">
+> Currently in development
 
-<image src="img2.png" alt="prev_1">
-<image src="img3.png" alt="prev_1">
+----------
+
+## UI
+
+![prev_1](img1.png)
+![prev_2](img2.png)
+![prev_3](img3.png)
+

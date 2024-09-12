@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:musicplayer/screen/splash.dart';
+import 'package:musicplayer/screens/default.dart';
+import 'package:musicplayer/screens/splash.dart';
+import 'package:platform/platform.dart';
 
 void main() {
-  runApp(const MusicApp());
+  Platform platform = const LocalPlatform();
+  runApp(MusicApp(platform: platform));
 }
 
 class MusicApp extends StatelessWidget {
-  const MusicApp({super.key});
-
+  const MusicApp({super.key, required this.platform});
+  final Platform platform;
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -16,7 +19,9 @@ class MusicApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
       ),
-      home: const Splash(),
+      home: (platform.isAndroid || platform.isIOS)
+          ? const Default()
+          : const Splash(),
     );
   }
 }

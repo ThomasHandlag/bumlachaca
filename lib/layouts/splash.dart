@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:developer' show log;
 
-import 'package:musicplayer/screens/default.dart';
+import 'package:musicplayer/layouts/default.dart';
+import 'package:platform/platform.dart';
 
 class Splash extends StatelessWidget {
   const Splash({super.key});
@@ -43,14 +44,20 @@ class SplashAnimationState extends State<SplashAnimation>
   @override
   void initState() {
     super.initState();
+    Platform platform = const LocalPlatform();
     _controller = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 2000));
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) {
-          return const Default();
-        }));
+        if (platform.isMacOS ||
+            platform.isLinux ||
+            platform.isWindows ||
+            platform.isFuchsia) {
+          Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (context) {
+            return const Default();
+          }));
+        }
       }
     });
     double x = widget.screenSize.dx;

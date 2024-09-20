@@ -77,3 +77,26 @@ class BackgroundClipper extends CustomClipper<Path> {
   @override
   bool shouldReclip(covariant CustomClipper<Path> oldClipper) => true;
 }
+
+class VisualizerClipper extends CustomClipper<Path> {
+  final double? radius;
+  const VisualizerClipper({this.radius = 10.0});
+  @override
+  Path getClip(Size size) {
+    final double _xScaling = size.width / 414;
+    final double _yScaling = size.height / 896;
+
+    // Create a rectangle with rounded corners using RRect
+    final rrect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      Radius.circular(radius!),
+    );
+
+    final path = Path()..addRRect(rrect);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
+}

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:musicplayer/layouts/default.dart';
-import 'package:musicplayer/screens/preview.dart';
 import 'package:musicplayer/layouts/splash.dart';
 import 'package:platform/platform.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   Platform platform = const LocalPlatform();

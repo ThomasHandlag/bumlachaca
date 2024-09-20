@@ -43,6 +43,8 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: any
+  supabase_flutter: ^2.6.0
+  ffi: ^2.1.3
 
 dev_dependencies:
   flutter_test:

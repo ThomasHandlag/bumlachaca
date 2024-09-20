@@ -1,7 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:musicplayer/helper/clippers.dart';
-import 'package:musicplayer/helper/shadow_clipper.dart';
+import 'package:musicplayer/widgets/shadow_clipper.dart';
 import 'package:musicplayer/widgets/indicator.dart';
 import 'package:musicplayer/widgets/slide.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';

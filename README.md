@@ -1,4 +1,4 @@
-# musicplayer
+# usicat
 
 A music player with attractive visualizer 😺.
 

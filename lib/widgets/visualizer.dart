@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:musicplayer/helper/painters.dart';
+import 'package:usicat/helper/painters.dart';
 
 class Visualizer extends StatefulWidget {
   const Visualizer(

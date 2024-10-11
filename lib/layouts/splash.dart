@@ -1,9 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:developer' show log;
 
-import 'package:musicplayer/layouts/default.dart';
+import 'package:usicat/layouts/default.dart';
 import 'package:platform/platform.dart';
 
 class Splash extends StatelessWidget {
@@ -53,10 +53,7 @@ class SplashAnimationState extends State<SplashAnimation>
             platform.isLinux ||
             platform.isWindows ||
             platform.isFuchsia) {
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) {
-            return const Default();
-          }));
+          context.go('default');
         }
       }
     });

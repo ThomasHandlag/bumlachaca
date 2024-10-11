@@ -12,9 +12,10 @@ class IndicatorState extends State<SlideIndicator> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        height: 100,
+        height: 40,
         padding: const EdgeInsets.all(10),
-        child: ButtonBar(
+        child: OverflowBar(
+          spacing: 5,
           children: [
             Indicator(
                 isSelected: widget.index == 0,
@@ -61,7 +62,7 @@ class Indicator extends StatelessWidget {
         borderRadius: BorderRadius.circular(borderRadius),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
+          curve: Curves.easeIn,
           margin: const EdgeInsets.symmetric(horizontal: 4.0),
           height: 15,
           width: isSelected ? 30.0 : 10.0,

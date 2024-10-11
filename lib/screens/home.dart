@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:musicplayer/helper/clippers.dart';
-import 'package:musicplayer/widgets/visualizer.dart';
+import 'package:usicat/helper/clippers.dart';
+import 'package:usicat/widgets/visualizer.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -13,6 +13,11 @@ class HomeState extends State<Home> {
   double _value = 0;
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) => Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -22,6 +27,7 @@ class HomeState extends State<Home> {
             icon: const Icon(Icons.more_vert),
           )
         ],
+        backgroundColor: Colors.white,
       ),
       body: Stack(
         children: [
@@ -50,7 +56,7 @@ class HomeState extends State<Home> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const SizedBox(
-                        height: 20,
+                        height: 40,
                       ),
                       Container(
                         width: 200,
@@ -90,7 +96,7 @@ class HomeState extends State<Home> {
                         ),
                       ),
                       const SizedBox(
-                        height: 10,
+                        height: 20,
                       ),
                       const SizedBox(
                         width: 200,

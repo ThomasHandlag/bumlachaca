@@ -1,9 +1,9 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:musicplayer/helper/clippers.dart';
-import 'package:musicplayer/widgets/shadow_clipper.dart';
-import 'package:musicplayer/widgets/indicator.dart';
-import 'package:musicplayer/widgets/slide.dart';
+import 'package:usicat/helper/clippers.dart';
+import 'package:usicat/widgets/shadow_clipper.dart';
+import 'package:usicat/widgets/indicator.dart';
+import 'package:usicat/widgets/slide.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'signin_screen.dart';
@@ -73,10 +73,12 @@ class PreviewState extends State<Preview> {
                 ))
           ],
         )),
-        Padding(
+        Container(
             padding: const EdgeInsets.all(10),
+            height: 100,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SlideIndicator(
                   index: _index,
@@ -84,31 +86,29 @@ class PreviewState extends State<Preview> {
                     controller.jumpToPage(index);
                   },
                 ),
-                Padding(
-                    padding: const EdgeInsets.only(right: 10),
-                    child: Material(
-                        color: Colors.black,
+                Material(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(10),
+                    child: InkWell(
                         borderRadius: BorderRadius.circular(10),
-                        child: InkWell(
-                            borderRadius: BorderRadius.circular(10),
-                            onTap: () {
-                              if (_index != 4) {
-                                controller.nextPage();
-                              } else {
-                                Navigator.pushReplacement(context,
-                                    MaterialPageRoute(builder: (context) {
-                                  return const SignScreen();
-                                }));
-                              }
-                            },
-                            child: Container(
-                                padding: const EdgeInsets.only(
-                                    left: 20, right: 20, bottom: 10, top: 10),
-                                child: Center(
-                                    child: Text(
-                                        _index != 4 ? "Next" : "Let's go",
-                                        style: const TextStyle(
-                                            color: Colors.white)))))))
+                        onTap: () {
+                          if (_index != 4) {
+                            controller.nextPage();
+                          } else {
+                            Navigator.pushReplacement(context,
+                                MaterialPageRoute(builder: (context) {
+                              return const SignScreen();
+                            }));
+                          }
+                        },
+                        child: Container(
+                            height: 40,
+                            padding: const EdgeInsets.only(
+                                left: 20, right: 20, bottom: 10, top: 10),
+                            child: Center(
+                                child: Text(_index != 4 ? "Next" : "Let's go",
+                                    style: const TextStyle(
+                                        color: Colors.white))))))
               ],
             ))
       ],

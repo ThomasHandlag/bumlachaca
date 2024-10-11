@@ -1,22 +1,26 @@
-import 'dart:async';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:usicat/layouts/sign_layout.dart';
-import 'package:usicat/screens/signup_screen.dart';
+import 'package:go_router/go_router.dart';
 import 'package:platform/platform.dart';
-import 'dart:developer' show log;
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:usicat/layouts/sign_layout.dart';
 
-class SignScreen extends StatefulWidget {
-  const SignScreen({super.key});
+class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
 
   @override
-  SigninScreenState createState() => SigninScreenState();
+  SignupScreenState createState() => SignupScreenState();
 }
 
-class SigninScreenState extends State<SignScreen> {
+class SignupScreenState extends State {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final platform = const LocalPlatform();
+
+  bool _isPasswordVisible = false;
+
   String? emailValidator(String? value) {
     if (value == null || value.isEmpty) {
       return "Please enter some text";
@@ -25,76 +29,34 @@ class SigninScreenState extends State<SignScreen> {
     if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
       return "Please enter a valid email";
     }
-
     return null;
   }
 
-  final platform = const LocalPlatform();
+  String? passwordValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return "Please enter some text";
+    }
+    // password validation
+    if (value.length < 8) {
+      return "Password must be at least 8 characters long";
+    }
 
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
-  bool _isPasswordVisible = false;
-
-  final _formKey = GlobalKey<FormState>();
-
-  final supabase = Supabase.instance.client;
-
-  Future<AuthResponse> _signInWithPassword() async {
-    return await supabase.auth.signInWithPassword(
-      email: _emailController.text,
-      password: _passwordController.text,
-    );
+    if (!RegExp(r'^(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$')
+        .hasMatch(value)) {
+      return "Password must contain at least one uppercase letter, one lowercase letter, one number and one special character";
+    }
+    return null;
   }
 
-  Future<void> _continueAsGuest() async {}
-
-  @override
-  void initState() {
-    supabase.auth.onAuthStateChange.listen((data) {
-      final AuthChangeEvent event = data.event;
-      if (event == AuthChangeEvent.signedIn) {
-        log("User Signed In");
-      }
-
-      final Session? session = data.session;
-
-      if (session != null) {
-        log("Session: ${session.user.aud}");
-      }
-    });
-
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    super.dispose();
-  }
-
-  Future<bool> _signInWithGoogle() async {
-    return await supabase.auth.signInWithOAuth(
-      OAuthProvider.google,
-      authScreenLaunchMode:
-          kIsWeb ? LaunchMode.platformDefault : LaunchMode.externalApplication,
-    );
-  }
-
-  Future<bool> _signInWithDiscord() async {
-    return await supabase.auth.signInWithOAuth(
-      OAuthProvider.discord,
-      authScreenLaunchMode:
-          kIsWeb ? LaunchMode.platformDefault : LaunchMode.externalApplication,
-    );
-  }
-
-  Future<bool> _signInWithGithub() async {
-    return await supabase.auth.signInWithOAuth(
-      OAuthProvider.github,
-      authScreenLaunchMode:
-          kIsWeb ? LaunchMode.platformDefault : LaunchMode.externalApplication,
-    );
+  String? confirmPasswordValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return "Please enter confirm password";
+    }
+    // password validation
+    if (value != _passwordController.text) {
+      return "Passwords do not match";
+    }
+    return null;
   }
 
   @override
@@ -105,7 +67,7 @@ class SigninScreenState extends State<SignScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Container(
-                  height: 220,
+                  height: 200,
                 ),
                 const SizedBox(
                   height: 20,
@@ -132,7 +94,7 @@ class SigninScreenState extends State<SignScreen> {
                           autocorrect: true,
                           onEditingComplete: () {
                             if (_formKey.currentState!.validate()) {
-                              log("value: ${_emailController.text}");
+                              debugPrint("value: ${_emailController.text}");
                             }
                           },
                           controller: _emailController,
@@ -154,6 +116,10 @@ class SigninScreenState extends State<SignScreen> {
                         TextFormField(
                           obscureText: _isPasswordVisible,
                           controller: _passwordController,
+                          validator: passwordValidator,
+                          onEditingComplete: () {
+                            if (_formKey.currentState!.validate()) {}
+                          },
                           decoration: InputDecoration(
                               labelText: "Password",
                               fillColor: Colors.white,
@@ -178,13 +144,39 @@ class SigninScreenState extends State<SignScreen> {
                         SizedBox(
                           height: MediaQuery.of(context).size.height * 0.04,
                         ),
+                        TextFormField(
+                          obscureText: _isPasswordVisible,
+                          controller: _confirmPasswordController,
+                          validator: confirmPasswordValidator,
+                          onEditingComplete: () {
+                            if (_formKey.currentState!.validate()) {}
+                          },
+                          decoration: InputDecoration(
+                              labelText: "Confirm Password",
+                              fillColor: Colors.white,
+                              filled: true,
+                              floatingLabelBehavior:
+                                  FloatingLabelBehavior.never,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              suffixIcon: IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      _isPasswordVisible = !_isPasswordVisible;
+                                    });
+                                  },
+                                  icon: Icon(_isPasswordVisible
+                                      ? Icons.visibility
+                                      : Icons.visibility_off)),
+                              labelStyle: const TextStyle(
+                                  color: Color(0xFF05001C), fontSize: 14)),
+                        ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             ElevatedButton(
-                                onPressed: () {
-                                  _continueAsGuest();
-                                },
+                                onPressed: () {},
                                 style: ButtonStyle(
                                     backgroundColor: WidgetStateProperty.all(
                                         const Color(0xFF05001C)),
@@ -199,7 +191,8 @@ class SigninScreenState extends State<SignScreen> {
                             ElevatedButton(
                                 onPressed: () {
                                   if (_formKey.currentState!.validate()) {
-                                    log("value: ${_emailController.text}");
+                                    debugPrint(
+                                        "value: ${_emailController.text}");
                                   }
                                 },
                                 style: ButtonStyle(
@@ -210,7 +203,7 @@ class SigninScreenState extends State<SignScreen> {
                                             borderRadius:
                                                 BorderRadius.circular(10)))),
                                 child: const Text(
-                                  "Sign In",
+                                  "Sign up",
                                   style: TextStyle(color: Colors.white),
                                 ))
                           ],
@@ -230,8 +223,8 @@ class SigninScreenState extends State<SignScreen> {
                                     backgroundColor:
                                         WidgetStatePropertyAll(Colors.white)),
                                 onPressed: () {
-                                  _signInWithDiscord().then((value) => log(
-                                      "Discord Sign In: ${supabase.auth.currentUser == null}"));
+                                  // _signInWithDiscord().then((value) => log(
+                                  //     "Discord Sign In: ${supabase.auth.currentUser == null}"));
                                 },
                                 icon: const Icon(
                                   Icons.discord,
@@ -259,8 +252,8 @@ class SigninScreenState extends State<SignScreen> {
                                   backgroundColor:
                                       WidgetStatePropertyAll(Colors.white)),
                               onPressed: () {
-                                _signInWithGoogle().then(
-                                    (value) => log("Google Sign In: $value"));
+                                // _signInWithGoogle().then(
+                                //     (value) => log("Google Sign In: $value"));
                               },
                               icon: const FaIcon(FontAwesomeIcons.google,
                                   size: 18, color: Color(0xFF05001C)),
@@ -271,8 +264,8 @@ class SigninScreenState extends State<SignScreen> {
                                     backgroundColor:
                                         WidgetStatePropertyAll(Colors.white)),
                                 onPressed: () {
-                                  _signInWithGithub().then(
-                                      (value) => log("Github Sign In: $value"));
+                                  // _signInWithGithub().then(
+                                  //     (value) => log("Github Sign In: $value"));
                                 },
                                 icon: const FaIcon(FontAwesomeIcons.github,
                                     size: 18, color: Color(0xFF05001C)),
@@ -288,11 +281,7 @@ class SigninScreenState extends State<SignScreen> {
                             const Text("Don't have an account?"),
                             TextButton(
                                 onPressed: () {
-                                  Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) =>
-                                              const SignupScreen()));
+                                  context.go('signup');
                                 },
                                 style: ButtonStyle(
                                   padding: WidgetStateProperty.all(
@@ -307,4 +296,24 @@ class SigninScreenState extends State<SignScreen> {
                       ],
                     ))
               ])));
+}
+
+class PasswordIndicator extends StatefulWidget {
+  const PasswordIndicator({super.key, required this.password});
+  final String password;
+  @override
+  State<StatefulWidget> createState() => PasswordIndicatorState();
+}
+
+class PasswordIndicatorState extends State {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        height: 40,
+        padding: const EdgeInsets.all(10),
+        child: OverflowBar(
+          spacing: 5,
+          children: [],
+        ));
+  }
 }

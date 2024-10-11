@@ -6,14 +6,14 @@ class UsiButton extends StatelessWidget {
   final double? radius;
   final Widget? child;
   final EdgeInsets? padding;
+
   const UsiButton(
       {super.key,
       required this.onPressed,
       this.decoration = const BoxDecoration(),
       this.radius = 10,
       this.child = const Text("Button"),
-      this.padding =
-          const EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 20)});
+      this.padding = const EdgeInsets.all(20)});
   @override
   Widget build(BuildContext context) {
     return Material(

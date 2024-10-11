@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:musicplayer/screens/preview.dart';
-import 'package:musicplayer/screens/signin_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:usicat/screens/preview.dart';
+import 'package:usicat/screens/signin_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Default extends StatefulWidget {
@@ -24,20 +25,6 @@ class DefaultState extends State<Default> with TickerProviderStateMixin {
     bounceAnimation = Tween(begin: 0.9, end: 1.0)
         .animate(CurvedAnimation(parent: controller, curve: Curves.bounceOut));
     controller.repeat();
-
-    isNewDownload().then((value) {
-      if (value) {
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) {
-          return const Preview();
-        }));
-      } else {
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) {
-          return const SignScreen();
-        }));
-      }
-    });
   }
 
   Future<bool> isNewDownload() async {
@@ -54,20 +41,19 @@ class DefaultState extends State<Default> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: AnimatedBuilder(
-      animation: controller,
-      builder: (context, child) {
-        return Center(
-            child: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                    color: Colors.purple,
-                    borderRadius: BorderRadius.circular(10)),
-                child: Transform.scale(
-                    scale: bounceAnimation.value,
-                    child: Image.asset('images/logo.png',
-                        width: 80, height: 90))));
-      },
-    ));
+        body: FutureBuilder<bool>(
+            future: isNewDownload(),
+            builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+              if (snapshot.hasData) {
+                if (snapshot.data!) {
+                  context.go('preview');
+                } else {
+                  context.go('signin');
+                }
+              }
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }));
   }
 }

@@ -35,6 +35,13 @@ class VisualzerPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    var path = clipper.getClip(size);
+
+    final Paint backgroundPaint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.fill;
+    canvas.drawPath(path, backgroundPaint);
+
     final barPainter = Paint()
       ..color = const Color.fromARGB(220, 187, 129, 223)
       ..style = PaintingStyle.fill;
@@ -43,7 +50,7 @@ class VisualzerPainter extends CustomPainter {
     // Bar width and spacing
     double barWidth = size.width / (barCount * 1.5); // Spacing between bars
     double spacing = barWidth / 2;
-    sleep(const Duration(milliseconds: 50));
+    sleep(const Duration(milliseconds: 30));
 
     // Draw each bar
     for (int i = 0; i < barCount; i++) {
@@ -60,14 +67,13 @@ class VisualzerPainter extends CustomPainter {
       canvas.drawRect(barRect, barPainter);
     }
 
-    var path = clipper.getClip(size);
     final Paint shadowPaint = Paint()
       ..color = Colors.black.withOpacity(0.5)
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 5;
 
-    path.shift(const Offset(-20, -10));
+    path.shift(const Offset(-0, 10));
     // Draw the shadow
     canvas.drawPath(path, shadowPaint);
   }
@@ -107,4 +113,32 @@ class BarsPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class BallPainter extends CustomPainter {
+  BallPainter({required this.position, required this.radius});
+  Offset position;
+  final double radius;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Paint paint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(position, radius, paint);
+
+    final Paint shadowPaint = Paint()
+      ..color = Colors.black.withOpacity(0.2)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 5;
+
+    // Draw the shadow
+    canvas.drawCircle(position + const Offset(0, 0), radius, shadowPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant BallPainter oldDelegate) =>
+      oldDelegate.position != position;
 }

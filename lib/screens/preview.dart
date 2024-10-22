@@ -1,12 +1,11 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:usicat/helper/clippers.dart';
 import 'package:usicat/widgets/shadow_clipper.dart';
 import 'package:usicat/widgets/indicator.dart';
 import 'package:usicat/widgets/slide.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
-import 'signin_screen.dart';
 
 class Preview extends StatefulWidget {
   const Preview({super.key});
@@ -95,10 +94,7 @@ class PreviewState extends State<Preview> {
                           if (_index != 4) {
                             controller.nextPage();
                           } else {
-                            Navigator.pushReplacement(context,
-                                MaterialPageRoute(builder: (context) {
-                              return const SignScreen();
-                            }));
+                            context.pushReplacement('/signin');
                           }
                         },
                         child: Container(

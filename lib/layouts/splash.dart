@@ -53,7 +53,7 @@ class SplashAnimationState extends State<SplashAnimation>
             platform.isLinux ||
             platform.isWindows ||
             platform.isFuchsia) {
-          context.go('default');
+          context.pushReplacement('/default');
         }
       }
     });
@@ -65,7 +65,7 @@ class SplashAnimationState extends State<SplashAnimation>
                 parent: _controller, curve: const Interval(0, 0.25)));
 
     _logoRotateTweenLeft = Tween<double>(begin: -pi / 2, end: 0).animate(
-        CurvedAnimation(parent: _controller, curve: const Interval(0.25, 0.5)));
+        CurvedAnimation(parent: _controller, curve: const Interval(0.25, 0.4)));
 
     _textOpacityTween = Tween<double>(begin: 0, end: 1).animate(
         CurvedAnimation(parent: _controller, curve: const Interval(0.5, 1)));

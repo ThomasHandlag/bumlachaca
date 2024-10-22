@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:usicat/screens/preview.dart';
-import 'package:usicat/screens/signin_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Default extends StatefulWidget {
@@ -32,6 +30,14 @@ class DefaultState extends State<Default> with TickerProviderStateMixin {
     return prefs.getBool('isNewDownload') ?? true;
   }
 
+  // bool? data;
+
+  // @override
+  // void reassemble() {
+
+  //   super.reassemble();
+  // }
+
   @override
   void dispose() {
     controller.dispose();
@@ -40,20 +46,13 @@ class DefaultState extends State<Default> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: FutureBuilder<bool>(
-            future: isNewDownload(),
-            builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-              if (snapshot.hasData) {
-                if (snapshot.data!) {
-                  context.go('preview');
-                } else {
-                  context.go('signin');
-                }
-              }
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }));
+    isNewDownload().then((value) {
+      if (value) {
+        context.pushReplacement('/preview');
+      } else {
+        context.pushReplacement('/home');
+      }
+    });
+    return Scaffold(body: Container());
   }
 }

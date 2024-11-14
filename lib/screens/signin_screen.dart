@@ -230,9 +230,9 @@ class SigninScreenState extends State<SignScreen> {
                                   )),
                               ElevatedButton(
                                   onPressed: () {
-                                    // if (_formKey.currentState!.validate()) {
-                                    _signInWithPassword();
-                                    // }
+                                    if (_formKey.currentState!.validate()) {
+                                      _signInWithPassword();
+                                    }
                                   },
                                   style: ButtonStyle(
                                       backgroundColor: WidgetStateProperty.all(

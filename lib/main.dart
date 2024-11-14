@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:usicat/layouts/custom_scaffold.dart';
@@ -7,8 +8,6 @@ import 'package:platform/platform.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:usicat/screens/home.dart';
-import 'package:usicat/screens/player.dart';
 import 'package:usicat/screens/preview.dart';
 import 'package:usicat/screens/signin_screen.dart';
 import 'package:usicat/screens/signup_screen.dart';
@@ -16,6 +15,7 @@ import 'package:win32_registry/win32_registry.dart';
 
 const Platform platform = LocalPlatform();
 
+// Register a custom protocol handler for Windows
 Future<void> register(String scheme) async {
   String appPath = platform.resolvedExecutable;
 
@@ -37,21 +37,21 @@ Future<void> register(String scheme) async {
   regKey.createKey(protocolCmdRegKey).createValue(protocolCmdRegValue);
 }
 
+AudioPlayer? audioPlayer;
+
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  audioPlayer = AudioPlayer();
+
   await Supabase.initialize(
-    url: 'https://yixrncvqpwbtjztmkenx.supabase.co',
-    anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpeHJuY3ZxcHdidGp6dG1rZW54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjQ0OTYyNTQsImV4cCI6MjA0MDA3MjI1NH0.RzNZzoPBJbEt4u5ertugmVqlxwrcCfHVxayJ-PuqKnQ',
-  );
-  final platform = LocalPlatform();
+    url:,
+    anonKey:,
+   );
   if (platform.isWindows) {
     await register('usicat');
   }
   runApp(const MusicApp());
 }
-
-final GlobalKey<NavigatorState> homeShellNavigatorKey =
-    GlobalKey<NavigatorState>();
 
 final GlobalKey<NavigatorState> rootHomeNavigatorKey =
     GlobalKey<NavigatorState>();
@@ -72,20 +72,10 @@ final ValueNotifier<RoutingConfig> routingConfig = ValueNotifier(RoutingConfig(
     GoRoute(path: '/preview', builder: (context, state) => const Preview()),
     GoRoute(path: '/signin', builder: (context, state) => const SignScreen()),
     GoRoute(path: '/signup', builder: (context, state) => const SignupScreen()),
-    ShellRoute(
-        navigatorKey: homeShellNavigatorKey,
-        builder: (context, state, child) => CustomScaffold(child: child),
-        routes: [
-          GoRoute(
-              path: '/home',
-              builder: (context, state) => const Home(),
-              routes: <RouteBase>[
-                GoRoute(
-                  path: 'player',
-                  builder: (context, state) => const Player(),
-                )
-              ])
-        ]),
+    GoRoute(
+      path: '/home',
+      builder: (context, state) => CustomScaffold(player: audioPlayer!),
+    )
   ],
 ));
 

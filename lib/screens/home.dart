@@ -1,7 +1,11 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:usicat/audio/model/song.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:usicat/audio/business/bloc.dart';
+import 'package:usicat/audio/business/state.dart';
+import 'package:usicat/audio/data/service/service.dart';
+import 'package:usicat/main.dart';
 import 'package:usicat/widgets/song_item.dart';
 
 class Home extends StatefulWidget {
@@ -22,149 +26,50 @@ class HomeState extends State<Home> {
     super.dispose();
   }
 
-  List<Song> songs = [
-    Song(
-      id: '1',
-      title: 'Song 1',
-      artist: 'Artist 1',
-      thumb: 'https://via.placeholder.com/150',
-      url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-    ),
-    Song(
-      id: '2',
-      title: 'Song 2',
-      artist: 'Artist 2',
-      thumb: 'https://via.placeholder.com/150',
-      url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
-    ),
-    Song(
-      id: '3',
-      title: 'Song 3',
-      artist: 'Artist 3',
-      thumb: 'https://via.placeholder.com/150',
-      url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
-    ),
-    Song(
-      id: '4',
-      title: 'Song 4',
-      artist: 'Artist 4',
-      thumb: 'https://via.placeholder.com/150',
-      url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
-    ),
-    Song(
-      id: '5',
-      title: 'Song 5',
-      artist: 'Artist 5',
-      thumb: 'https://via.placeholder.com/150',
-      url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
-    ),
-    Song(
-      id: '6',
-      title: 'Song 6',
-      artist: 'Artist 6',
-      thumb: 'https://via.placeholder.com/150',
-      url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3',
-    ),
-    Song(
-      id: '7',
-      title: 'Song 7',
-      artist: 'Artist 7',
-      thumb: 'https://via.placeholder.com/150',
-      url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3',
-    ),
-    Song(
-      id: '8',
-      title: 'Song 8',
-      artist: 'Artist 8',
-      thumb: 'https://via.placeholder.com/150',
-      url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
-    ),
-    Song(
-      id: '8',
-      title: 'Song 8',
-      artist: 'Artist 8',
-      thumb: 'https://via.placeholder.com/150',
-      url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
-    ),
-    Song(
-      id: '8',
-      title: 'Song 8',
-      artist: 'Artist 8',
-      thumb: 'https://via.placeholder.com/150',
-      url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
-    ),
-    Song(
-      id: '8',
-      title: 'Song 8',
-      artist: 'Artist 8',
-      thumb: 'https://via.placeholder.com/150',
-      url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
-    ),
-    Song(
-      id: '8',
-      title: 'Song 8',
-      artist: 'Artist 8',
-      thumb: 'https://via.placeholder.com/150',
-      url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
-    ),
-    Song(
-      id: '8',
-      title: 'Song 8',
-      artist: 'Artist 8',
-      thumb: 'https://via.placeholder.com/150',
-      url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
-    ),
-    Song(
-      id: '8',
-      title: 'Song 8',
-      artist: 'Artist 8',
-      thumb: 'https://via.placeholder.com/150',
-      url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
-    )
-  ];
+  List<Song> songs = [];
 
   @override
   Widget build(BuildContext context) {
     final Widget _newReleases = Stack(
       children: <Widget>[
         Container(
-          height: 200,
-          constraints: BoxConstraints(maxWidth: 500),
-          decoration: BoxDecoration(
+          height: 250,
+          constraints: const BoxConstraints(maxWidth: 500),
+          decoration: const BoxDecoration(
               color: Colors.blue,
               image: DecorationImage(
-                  image: AssetImage('images/thumb1.jpg'), fit: BoxFit.cover)),
+                  image: AssetImage('images/thumb2.jpg'), fit: BoxFit.cover)),
         ),
         ClipRect(
             child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
           child: Container(
-            height: 200,
+            height: 250,
             constraints: BoxConstraints(maxWidth: 500),
             decoration: BoxDecoration(
-              color: Colors.grey.shade200.withOpacity(0.6),
+              color: Colors.grey.shade200.withOpacity(0.4),
             ),
           ),
         )),
         Container(
-            height: 200,
-            padding: EdgeInsets.all(20),
-            constraints: BoxConstraints(maxWidth: 500),
+            height: 250,
+            padding: const EdgeInsets.all(20),
+            constraints: const BoxConstraints(maxWidth: 400),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  width: 100,
-                  height: 100,
+                  width: 150,
+                  height: 150,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
                     image: const DecorationImage(
-                        image: AssetImage('images/thumb1.jpg'),
+                        image: AssetImage('images/thumb2.jpg'),
                         fit: BoxFit.cover),
                   ),
                 ),
                 const SizedBox(
-                  width: 20,
+                  width: 50,
                 ),
                 Center(
                     child: Column(
@@ -223,16 +128,23 @@ class HomeState extends State<Home> {
                         )
                       ],
                     ),
-                    const Text(
-                      "Far Away",
-                      style: TextStyle(fontSize: 20),
+                    Text(
+                      "Love u",
+                      style: TextStyle(
+                          fontSize: MusicAppThemeData.of(context)
+                              .textSizeScheme
+                              .headlineSmall,
+                          fontWeight: FontWeight.w600),
                     ),
-                    const Text(
+                    Text(
                       "NCS",
                       style: TextStyle(fontSize: 15),
                     ),
-                    ElevatedButton(
-                        onPressed: () {}, child: Icon(Icons.play_arrow))
+                    IconButton.filled(
+                        onPressed: () {
+                          // AudioWidgetContext.of(context)!.audioPlayer.play()
+                        },
+                        icon: const Icon(Icons.play_arrow))
                   ],
                 ))
               ],
@@ -240,72 +152,118 @@ class HomeState extends State<Home> {
       ],
     );
 
-    Widget _popularText = const Padding(
-        padding: EdgeInsets.all(10),
+    Widget popularText = Padding(
+        padding: const EdgeInsets.all(10),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Text("Popular"),
+            Text("Popular",
+                style: TextStyle(
+                    fontSize:
+                        MusicAppThemeData.of(context).textSizeScheme.labelLarge,
+                    fontWeight: FontWeight.w600)),
           ],
         ));
 
-    Widget _popular = SizedBox(
-        height: 120,
+    Widget _popular = Container(
+        height: 170,
         child: ListView.separated(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(5),
             scrollDirection: Axis.horizontal,
-            physics: BouncingScrollPhysics(),
+            physics: const BouncingScrollPhysics(),
             itemBuilder: (_, index) {
               return index == 3
                   ? TextButton(
                       onPressed: () {},
                       child: const Text("More"),
                     )
-                  : Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          image: DecorationImage(
-                              image: AssetImage('images/thumb${index + 1}.jpg'),
-                              fit: BoxFit.cover)),
-                    );
+                  : SizedBox(
+                      width: 120,
+                      height: 120,
+                      child: Column(
+                        children: [
+                          Container(
+                            width: 120,
+                            height: 120,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.5),
+                                    spreadRadius: 0,
+                                    blurRadius: 2,
+                                    offset: const Offset(0, 2),
+                                  )
+                                ],
+                                image: DecorationImage(
+                                    image: AssetImage(
+                                        'images/thumb${index + 1}.jpg'),
+                                    fit: BoxFit.cover)),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Text("Sky full of stars",
+                              style: TextStyle(
+                                  overflow: TextOverflow.ellipsis,
+                                  fontSize: MusicAppThemeData.of(context)
+                                      .textSizeScheme
+                                      .labelMedium)),
+                        ],
+                      ));
             },
             separatorBuilder: (_, index) {
               return const SizedBox(
-                width: 10,
+                width: 12,
               );
             },
             itemCount: 4));
 
-    Widget _recentPlayed = SizedBox(
+    Widget popular = Padding(
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [popularText, _popular],
+      ),
+    );
+
+    Widget resPlaylist = SizedBox(
         height: MediaQuery.of(context).size.height * 0.8,
         child: DefaultTabController(
             length: 3,
             child: Column(
               children: [
-                const TabBar(
+                TabBar(
                   dividerHeight: 0,
                   tabs: [
                     Tab(
                       child: Text(
                         "Recently",
                         style: TextStyle(
-                            fontSize: 10, fontWeight: FontWeight.bold),
+                            fontSize: MusicAppThemeData.of(context)
+                                .textSizeScheme
+                                .labelLarge,
+                            fontWeight: FontWeight.w600),
                       ),
                     ),
                     Tab(
                       child: Text(
                         "Top Charts",
                         style: TextStyle(
-                            fontSize: 10, fontWeight: FontWeight.bold),
+                            fontSize: MusicAppThemeData.of(context)
+                                .textSizeScheme
+                                .labelLarge,
+                            fontWeight: FontWeight.w600),
                       ),
                     ),
                     Tab(
                       child: Text(
-                        "Recommended",
+                        "Similar",
                         style: TextStyle(
-                            fontSize: 10, fontWeight: FontWeight.bold),
+                            fontSize: MusicAppThemeData.of(context)
+                                .textSizeScheme
+                                .labelLarge,
+                            fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],
@@ -321,31 +279,30 @@ class HomeState extends State<Home> {
 
     List<Widget> items = [
       _newReleases,
-      _popularText,
-      _popular,
-      _recentPlayed,
+      popular,
+      resPlaylist,
       const SizedBox(
         height: 10,
       )
     ];
 
-    return Scaffold(
-        backgroundColor: Colors.white,
-        body: Stack(
-          children: <Widget>[
-            Container(),
-            ListView.separated(
-                itemBuilder: (_, index) {
-                  return items[index];
-                },
-                separatorBuilder: (_, index) {
-                  return const SizedBox(
-                    height: 10,
-                  );
-                },
-                itemCount: 5)
-          ],
-        ));
+    return Stack(
+      children: <Widget>[
+        Container(),
+        BlocBuilder<PlaybackBloc, PlaybackState>(builder: (context, state) {
+          return ListView.separated(
+              itemBuilder: (_, index) {
+                return items[index];
+              },
+              separatorBuilder: (_, index) {
+                return const SizedBox(
+                  height: 5,
+                );
+              },
+              itemCount: 4);
+        })
+      ],
+    );
   }
 }
 
@@ -362,12 +319,12 @@ class ListChildRender extends StatefulWidget {
 class _ListChildRenderState extends State<ListChildRender> {
   @override
   Widget build(BuildContext context) => Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       child: ScrollConfiguration(
           behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
           child: ListView.separated(
               itemBuilder: (_, index) {
-                return SongItem();
+                return SongItem(song: widget.songs[index]);
               },
               separatorBuilder: (_, index) => const SizedBox(
                     height: 10,

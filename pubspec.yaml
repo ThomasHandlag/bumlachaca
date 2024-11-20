@@ -53,6 +53,15 @@ dependencies:
   crypto: ^3.0.6
   audioplayers: ^6.1.0
   http: ^1.2.2
+  equatable: ^2.0.5
+  sqflite: ^2.4.1
+  path: ^1.9.0
+  sqflite_common: ^2.5.4+5
+  sqflite_common_ffi: ^2.3.4
+  stream_transform: ^2.1.0
+  bloc: ^8.1.4
+  bloc_concurrency: ^0.2.5
+  file_picker: ^8.1.4
   # audiopc:
   #   path: "D:/Documents/Github/audiopc"
 dev_dependencies:
@@ -99,6 +108,7 @@ flutter:
     - images/logo.png
     - images/final.png
     - images/cat.png
+    - images/cat1.png
     - images/thumb1.jpg
     - images/thumb2.jpg
     - images/thumb3.jpg
@@ -115,11 +125,10 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
+  fonts:
+    - family: Itim
+      fonts:
+        - asset: font/Itim-Regular.ttf
   #         style: italic
   #   - family: Trajan Pro
   #     fonts:

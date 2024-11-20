@@ -1,23 +1,27 @@
 import 'dart:convert';
+import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-class Song {
-  final int id;
+class Song extends Equatable {
+  final int? id;
   final String title;
   final String artist;
   final String genre;
   final String fileThumb;
   final String fileUrl;
   final int playCount;
+  final int playListId;
 
-  Song({
-    required this.id,
+  const Song({
+    this.id,
     required this.title,
-    required this.artist,
-    required this.genre,
-    required this.fileThumb,
+    this.artist = "",
+    this.genre = "",
+    this.fileThumb = "",
     required this.fileUrl,
-    required this.playCount,
+    this.playCount = 0,
+    this.playListId = 1,
   });
 
   factory Song.fromJson(Map<String, dynamic> json) {
@@ -31,10 +35,29 @@ class Song {
       playCount: json['play_count'],
     );
   }
+
+  @override
+  List<Object?> get props =>
+      [id, title, artist, genre, fileThumb, fileUrl, playCount];
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'title': title,
+      'url': fileUrl,
+    };
+  }
+
+  @override
+  String toString() {
+    return 'Song { id: $id, title: $title, artist: $artist, genre: $genre, fileThumb: $fileThumb, fileUrl: $fileUrl, playCount: $playCount }';
+  }
 }
 
 class AudioApiService {
-  final String baseUrl = '';
+  static String baseUrl = '';
+
+  static String get url => baseUrl;
 
   Future<List<Song>> getSongs() async {
     final response = await http.get(Uri.parse('$baseUrl/getSongs'));
@@ -47,10 +70,11 @@ class AudioApiService {
     }
   }
 
-  Future<Map<String, Song>> getSongById(String id) async {
+  Future<List<Song>> getSongById(String id) async {
     final response = await http.get(Uri.parse('$baseUrl/getSong/$id'));
     if (response.statusCode == 200) {
-      return json.decode(response.body);
+      final List<dynamic> json = jsonDecode(response.body);
+      return json.map((json) => Song.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load song');
     }
@@ -61,7 +85,8 @@ class AudioApiService {
     final response =
         await http.get(Uri.parse('$baseUrl/getSongByKeyword/$keyword'));
     if (response.statusCode == 200) {
-      return json.decode(response.body);
+      final List<dynamic> json = jsonDecode(response.body);
+      return json.map((json) => Song.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load song by keyword');
     }
@@ -72,17 +97,19 @@ class AudioApiService {
     final response =
         await http.get(Uri.parse('$baseUrl/getSongByGenre/$genre'));
     if (response.statusCode == 200) {
-      return json.decode(response.body);
+      final List<dynamic> json = jsonDecode(response.body);
+      return json.map((json) => Song.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load song by genre');
     }
   }
 
 // get the most popular song
-  Future<Map<String, Song>> getMostPopularSong() async {
+  Future<List<Song>> getMostPopularSong() async {
     final response = await http.get(Uri.parse('$baseUrl/getMostPopularSong'));
     if (response.statusCode == 200) {
-      return json.decode(response.body);
+      final List<dynamic> json = jsonDecode(response.body);
+      return json.map((json) => Song.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load most popular song');
     }
@@ -92,17 +119,19 @@ class AudioApiService {
   Future<List<Song>> getSongByData() async {
     final response = await http.get(Uri.parse('$baseUrl/getSongByData'));
     if (response.statusCode == 200) {
-      return json.decode(response.body);
+      final List<dynamic> json = jsonDecode(response.body);
+      return json.map((json) => Song.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load song by data');
     }
   }
 
 // get the newest song
-  Future<Map<String, Song>> getNewestSong() async {
+  Future<List<Song>> getNewestSong() async {
     final response = await http.get(Uri.parse('$baseUrl/getNewestSong'));
     if (response.statusCode == 200) {
-      return json.decode(response.body);
+      final List<dynamic> json = jsonDecode(response.body);
+      return json.map((json) => Song.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load newest song');
     }
@@ -113,15 +142,10 @@ class AudioApiService {
     final response =
         await http.get(Uri.parse('$baseUrl/getSongByTagInt/$tagInt'));
     if (response.statusCode == 200) {
-      return json.decode(response.body);
+      final List<dynamic> json = jsonDecode(response.body);
+      return json.map((json) => Song.fromJson(json)).toList();
     } else {
       throw Exception('Failed to load song by tag');
     }
   }
-}
-
-class LocalAudioService {
-  getLocalSongs() {}
-
-  getLocalSongById(String id) {}
 }

@@ -5,9 +5,11 @@ class Visualizer extends StatefulWidget {
   const Visualizer(
       {super.key,
       required this.clipper,
+      required this.isPlaying,
       required this.width,
       required this.height});
   final CustomClipper<Path> clipper;
+  final bool isPlaying;
   final double width, height;
   @override
   State<StatefulWidget> createState() => VisualizerState();
@@ -49,8 +51,10 @@ class VisualizerState extends State<Visualizer>
           ClipPath(
             clipper: widget.clipper,
             child: CustomPaint(
-              painter:
-                  VisualzerPainter(clipper: widget.clipper, deltaTime: _delta),
+              painter: VisualzerPainter(
+                  clipper: widget.clipper,
+                  deltaTime: _delta,
+                  isPlaying: widget.isPlaying),
               child: SizedBox(
                 width: widget.width,
                 height: widget.height,

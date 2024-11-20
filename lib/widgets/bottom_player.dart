@@ -2,10 +2,9 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:usicat/audio/business/bloc.dart';
-import 'package:usicat/audio/business/event.dart';
-import 'package:usicat/audio/business/state.dart';
 import 'package:usicat/screens/player.dart';
 import 'package:usicat/widgets/audio_widget_context.dart';
+import 'package:usicat/widgets/custom_netimage.dart';
 
 class BottomPlayer extends StatefulWidget {
   const BottomPlayer({super.key});
@@ -20,41 +19,10 @@ class _BottomPlayerState extends State<BottomPlayer> {
     super.initState();
   }
 
-  bool _isPlaying = false;
-  Duration _duration = Duration(seconds: 0);
-  Duration _audioDuration = Duration(seconds: 0);
-
   @override
   Widget build(BuildContext context) {
-    AudioWidgetContext.of(context)!.audioPlayer.getDuration().then((value) {
-      setState(() {
-        if (value != null) {
-          _audioDuration = value;
-        }
-      });
-    });
-
-    AudioWidgetContext.of(context)!.audioPlayer.onPlayerStateChanged.listen(
-      (state) {
-        if (state == PlayerState.playing) {
-          setState(() {
-            _isPlaying = true;
-          });
-        } else {
-          setState(() {
-            _isPlaying = false;
-          });
-        }
-      },
-    );
-    AudioWidgetContext.of(context)!.audioPlayer.onPositionChanged.listen(
-      (duration) {
-        setState(() {
-          _duration = duration;
-        });
-      },
-    );
     return BlocBuilder<PlaybackBloc, PlaybackState>(
+      bloc: BlocProvider.of<PlaybackBloc>(context),
       builder: (context, state) {
         return Container(
             height: 60,
@@ -89,6 +57,7 @@ class _BottomPlayerState extends State<BottomPlayer> {
                             return Player(
                               audioPlayer:
                                   AudioWidgetContext.of(context)!.audioPlayer,
+                              bloc: BlocProvider.of<PlaybackBloc>(context),
                             );
                           });
                     },
@@ -96,10 +65,9 @@ class _BottomPlayerState extends State<BottomPlayer> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           LinearProgressIndicator(
-                            value: _audioDuration.inSeconds == 0
+                            value: state.duration == 0
                                 ? 0
-                                : _duration.inMilliseconds /
-                                    _audioDuration.inMilliseconds,
+                                : state.position / state.duration,
                             backgroundColor: Colors.transparent,
                             valueColor: const AlwaysStoppedAnimation<Color>(
                                 Colors.blueAccent),
@@ -107,50 +75,77 @@ class _BottomPlayerState extends State<BottomPlayer> {
                           const SizedBox(
                             height: 5,
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Row(
+                          Container(
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 20),
+                              child: Row(
                                 mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  CircleAvatar(
-                                    radius: 20,
-                                    backgroundImage:
-                                        AssetImage('images/thumb1.jpg'),
-                                  ),
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text("Song Title"),
-                                      Text("Artist Name"),
+                                      Container(
+                                          clipBehavior: Clip.antiAlias,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                          ),
+                                          child: state.song == null
+                                              ? Image.asset(
+                                                  'images/thumb1.jpg',
+                                                  width: 50,
+                                                  height: 50,
+                                                )
+                                              : CustomNetImage(
+                                                  url: state.song!.fileThumb,
+                                                  width: 50,
+                                                  height: 50,
+                                                )),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(state.song == null
+                                              ? "No song playing"
+                                              : state.song!.title),
+                                          Text(state.song == null
+                                              ? "No artist"
+                                              : state.song!.artist),
+                                        ],
+                                      ),
                                     ],
                                   ),
+                                  IconButton(
+                                    icon: Icon(
+                                        state.state == PlayerState.playing
+                                            ? Icons.pause
+                                            : Icons.play_arrow),
+                                    onPressed: () {
+                                      final audioPlayer =
+                                          AudioWidgetContext.of(context)!
+                                              .audioPlayer;
+                                      if (audioPlayer.source != null) {
+                                        if (audioPlayer.state ==
+                                            PlayerState.playing) {
+                                          audioPlayer.pause();
+                                        } else if (audioPlayer.state ==
+                                            PlayerState.paused) {
+                                          audioPlayer.resume();
+                                        }
+                                      } else {
+                                        // play the lastest played song
+                                      }
+                                    },
+                                  ),
                                 ],
-                              ),
-                              IconButton(
-                                icon: Icon(_isPlaying
-                                    ? Icons.pause
-                                    : Icons.play_arrow),
-                                onPressed: () {
-                                  final audioPlayer =
-                                      AudioWidgetContext.of(context)!
-                                          .audioPlayer;
-                                  if (audioPlayer.source != null) {
-                                    if (audioPlayer.state ==
-                                        PlayerState.playing) {
-                                      audioPlayer.pause();
-                                    } else if (audioPlayer.state ==
-                                        PlayerState.paused) {
-                                      audioPlayer.resume();
-                                    }
-                                  } else {
-                                    // play the lastest played song
-                                  }
-                                },
-                              ),
-                            ],
-                          )
+                              ))
                         ]))));
       },
     );

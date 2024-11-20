@@ -1,3 +1,4 @@
+import 'package:usicat/audio/data/service/local_lib.dart';
 import 'package:usicat/audio/data/service/service.dart';
 
 class AudioRepository {
@@ -5,37 +6,51 @@ class AudioRepository {
 
   AudioRepository(this.apiService);
 
-  Future<List<Song>> getAudioFiles() async {
+  Future<List<Song>> getSongs() async {
     return await apiService.getSongs();
   }
 
-  Future<Map<String, Song>> getAudioFileById(String id) async {
+  Future<List<Song>> getSongById(String id) async {
     return await apiService.getSongById(id);
   }
 
-  Future<List<Song>> getAudioFileByKeyword(String keyword) async {
+  Future<List<Song>> getSongByKeyword(String keyword) async {
     return await apiService.getSongByKeyword(keyword);
   }
 
-  Future<List<Song>> getAudioFileByGenre(String genre) async {
+  Future<List<Song>> getSongByGenre(String genre) async {
     return await apiService.getSongByGenre(genre);
   }
 
-  Future<Map<String, Song>> getMostPopularAudioFile() async {
+  Future<List<Song>> getMostPopularSong() async {
     return await apiService.getMostPopularSong();
+  }
+
+  Future<List<Song>> getNewSong() async {
+    return await apiService.getNewestSong();
   }
 }
 
 class LocalAudioRepo {
-  final LocalAudioService localAudioService;
-
-  LocalAudioRepo(this.localAudioService);
-
-  Future<List<Song>> getLocalAudioFiles() async {
-    return await localAudioService.getLocalSongs();
+  final DatabaseHelper db;
+  LocalAudioRepo(this.db);
+  Future<List<Song>> getLocalSongs() async {
+    return await db.getSongs();
   }
 
-  Future<Map<String, Song>> getLocalAudioFileById(String id) async {
-    return await localAudioService.getLocalSongById(id);
+  Future<List<PlayList>> getPlayLists() async {
+    return await db.getPlayLists();
+  }
+
+  Future<List<Song>> getSongFromPlayList(List<SOP> sop) async {
+    return await db.getSongFromPlayList(sop.map((e) => e.songId).toList());
+  }
+
+  Future<List<SOP>> getSOP(int id) async {
+    return await db.getSOP(id);
+  }
+
+  Future<void> createPlayList(String name) async {
+    await db.createPlayList(PlayList(name: name));
   }
 }

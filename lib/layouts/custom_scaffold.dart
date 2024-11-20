@@ -3,13 +3,14 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:usicat/audio/business/bloc.dart';
-import 'package:usicat/audio/business/event.dart';
-import 'package:usicat/audio/business/state.dart';
+import 'package:usicat/audio/data/repository/audio_repository.dart';
 import 'package:usicat/audio/data/service/service.dart';
 import 'package:usicat/main.dart';
+import 'package:usicat/screens/about.dart';
 import 'package:usicat/screens/home.dart';
+import 'package:usicat/screens/playlist_ui.dart';
+import 'package:usicat/screens/setting.dart';
 import 'package:usicat/widgets/audio_widget_context.dart';
 import 'package:usicat/widgets/bottom_player.dart';
 
@@ -24,21 +25,17 @@ class CustomScaffold extends StatefulWidget {
 
 class _CustomScaffoldState extends State<CustomScaffold> {
   bool _extended = false;
-  Song? _lastPlayedSong = null;
 
-  final List<Widget> pages = [const Home()];
+  final List<Widget> pages = [
+    const Home(),
+    const PlaylistUI(),
+    const Setting(),
+    const About()
+  ];
 
-  final PlaybackBloc playbackBloc = PlaybackBloc(AudioPlaybackState(
-      Song(
-          id: 1,
-          artist: "NCS",
-          fileThumb: "",
-          fileUrl: "D:/Downloads/mine.mp3",
-          genre: "",
-          playCount: 10,
-          title: "Mine"),
-      0,
-      0));
+  final PlaybackBloc playbackBloc = PlaybackBloc(const PlaybackState());
+  final APIBloc apiBloc = APIBloc(AudioRepository(AudioApiService()));
+  final LocalLibBloc localLibBloc = LocalLibBloc();
 
   @override
   void initState() {
@@ -53,14 +50,14 @@ class _CustomScaffoldState extends State<CustomScaffold> {
   }
 
   void _createListener() {
-    if (mounted) {
-      return;
-    }
-    widget.player.onDurationChanged.listen((event) {
-      playbackBloc.add(OnDurationChange(event.inMilliseconds));
+    widget.player.onDurationChanged.listen((duration) {
+      playbackBloc.add(OnDurationChange(duration.inMilliseconds));
     });
-    widget.player.onPositionChanged.listen((event) {
-      playbackBloc.add(OnPositionChange(event.inMilliseconds));
+    widget.player.onPositionChanged.listen((position) {
+      playbackBloc.add(OnPositionChange(position.inMilliseconds));
+    });
+    widget.player.onPlayerStateChanged.listen((state) {
+      playbackBloc.add(OnStateChange(state));
     });
   }
 
@@ -70,6 +67,7 @@ class _CustomScaffoldState extends State<CustomScaffold> {
   Widget build(BuildContext context) {
     PreferredSizeWidget? appBar;
     Widget? bottomPlayer;
+    Drawer? drawer;
     final String location = GoRouterState.of(context).uri.path;
     if (MediaQuery.of(context).size.width < 600 &&
         location.compareTo('/home') == 0) {
@@ -82,22 +80,81 @@ class _CustomScaffoldState extends State<CustomScaffold> {
         ],
         title: Text(
           "usicat",
-          style: GoogleFonts.getFont("Itim",
+          style: TextStyle(
+              fontFamily: "Itim",
               fontSize:
                   MusicAppThemeData.of(context).textSizeScheme.displaySmall),
         ),
       );
-      bottomPlayer = AudioWidgetContext(
-          audioPlayer: widget.player, child: const BottomPlayer());
+      bottomPlayer = MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (context) => playbackBloc),
+            BlocProvider(create: (context) => apiBloc),
+            BlocProvider(create: (context) => localLibBloc)
+          ],
+          child: AudioWidgetContext(
+              audioPlayer: widget.player, child: const BottomPlayer()));
+
+      drawer = Drawer(
+        child: ListView(
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(color: Colors.blue),
+              child: Text(
+                "usicat",
+                style: TextStyle(
+                    fontFamily: "Itim", fontSize: 24, color: Colors.white),
+              ),
+            ),
+            ListTile(
+              title: const Text("Home"),
+              onTap: () {
+                setState(() {
+                  _pageIndex = 0;
+                });
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text("Playlists"),
+              onTap: () {
+                setState(() {
+                  _pageIndex = 1;
+                });
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text("Settings"),
+              onTap: () {
+                setState(() {
+                  _pageIndex = 2;
+                });
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text("About"),
+              onTap: () {
+                setState(() {
+                  _pageIndex = 3;
+                });
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      );
     } else {
       appBar = null;
       bottomPlayer = null;
+      drawer = null;
     }
 
     return Scaffold(
       appBar: appBar,
-      bottomNavigationBar:
-          BlocProvider(create: (context) => playbackBloc, child: bottomPlayer),
+      bottomNavigationBar: bottomPlayer,
+      drawer: drawer,
       body: Stack(
         children: [
           Transform.translate(
@@ -151,9 +208,11 @@ class _CustomScaffoldState extends State<CustomScaffold> {
                   : const SizedBox(),
               AudioWidgetContext(
                 audioPlayer: widget.player,
-                child: BlocProvider(
-                    create: (context) => playbackBloc,
-                    child: Expanded(child: pages[_pageIndex])),
+                child: MultiBlocProvider(providers: [
+                  BlocProvider(create: (context) => playbackBloc),
+                  BlocProvider(create: (context) => apiBloc),
+                  BlocProvider(create: (context) => localLibBloc)
+                ], child: Expanded(child: pages[_pageIndex])),
               ),
             ],
           ),

@@ -1,9 +1,49 @@
-import 'package:usicat/audio/data/service/service.dart';
+part of 'bloc.dart';
 
 abstract class APIEvent {}
 
-class AudioAPIEvent extends APIEvent {}
+class OnGetSongs extends APIEvent {}
 
+class OnGetNewSong extends APIEvent {}
+
+class OnGetSongById extends APIEvent {
+  final String id;
+
+  OnGetSongById(this.id);
+}
+
+class OnGetSongByKeyword extends APIEvent {
+  final String keyword;
+
+  OnGetSongByKeyword(this.keyword);
+}
+
+class OnGetSongByGenre extends APIEvent {
+  final String genre;
+
+  OnGetSongByGenre(this.genre);
+}
+
+class OnGetMostPopularSong extends APIEvent {}
+
+// local event
+class OnGetLocalSong extends APIEvent {}
+
+class OnGetPlayList extends APIEvent {}
+
+class OnGetSongFromPlayList extends APIEvent {
+  final int playListId;
+
+  OnGetSongFromPlayList(this.playListId);
+}
+
+class OnAddPlayList extends APIEvent {
+  final String name;
+
+  OnAddPlayList(this.name);
+}
+
+// player event
 abstract class PlaybackEvent {}
 
 class OnNewSong extends PlaybackEvent {
@@ -18,14 +58,14 @@ class OnPositionChange extends PlaybackEvent {
   OnPositionChange(this.position);
 }
 
-class OnStateChange extends PlaybackEvent {
-  final bool isPlaying;
-
-  OnStateChange(this.isPlaying);
-}
-
 class OnDurationChange extends PlaybackEvent {
   final int duration;
 
   OnDurationChange(this.duration);
+}
+
+class OnStateChange extends PlaybackEvent {
+  final PlayerState state;
+
+  OnStateChange(this.state);
 }

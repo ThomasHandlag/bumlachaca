@@ -29,9 +29,13 @@ class ShadowPainter extends CustomPainter {
 }
 
 class VisualzerPainter extends CustomPainter {
-  VisualzerPainter({required this.clipper, required this.deltaTime});
+  VisualzerPainter(
+      {required this.clipper,
+      required this.deltaTime,
+      required this.isPlaying});
   final CustomClipper<Path> clipper;
   final double deltaTime;
+  final bool isPlaying;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -79,8 +83,7 @@ class VisualzerPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(VisualzerPainter oldDelegate) =>
-      oldDelegate.deltaTime != deltaTime;
+  bool shouldRepaint(VisualzerPainter oldDelegate) => isPlaying;
 }
 
 class BarsPainter extends CustomPainter {

@@ -1,6 +1,8 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:usicat/audio/data/service/local_lib.dart';
 import 'package:usicat/layouts/custom_scaffold.dart';
 import 'package:usicat/layouts/default.dart';
 import 'package:usicat/layouts/splash.dart';
@@ -42,14 +44,13 @@ AudioPlayer? audioPlayer;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   audioPlayer = AudioPlayer();
-
-  await Supabase.initialize(
-    url:,
-    anonKey:,
-   );
+  //initialize database
+  DatabaseHelper();
+  await Supabase.initialize();
   if (platform.isWindows) {
     await register('usicat');
   }
+  // Bloc.observer = MusicAppBlocObserver();
   runApp(const MusicApp());
 }
 
@@ -81,7 +82,7 @@ final ValueNotifier<RoutingConfig> routingConfig = ValueNotifier(RoutingConfig(
 
 final GoRouter _router = GoRouter.routingConfig(
     routingConfig: routingConfig,
-    debugLogDiagnostics: true,
+    debugLogDiagnostics: false,
     navigatorKey: rootHomeNavigatorKey);
 
 class MusicApp extends StatefulWidget {
@@ -284,5 +285,34 @@ class TextSizeScheme {
       bodyMedium: seed * 0.85,
       bodySmall: seed * 0.75,
     );
+  }
+}
+
+class MusicAppBlocObserver extends BlocObserver {
+  @override
+  void onEvent(Bloc bloc, Object? event) {
+    super.onEvent(bloc, event);
+    debugPrint(event.toString());
+  }
+
+  @override
+  void onTransition(
+    Bloc<dynamic, dynamic> bloc,
+    Transition<dynamic, dynamic> transition,
+  ) {
+    super.onTransition(bloc, transition);
+    debugPrint(transition.toString());
+  }
+
+  @override
+  void onChange(BlocBase bloc, Change change) {
+    super.onChange(bloc, change);
+    debugPrint(change.toString());
+  }
+
+  @override
+  void onError(BlocBase bloc, Object error, StackTrace stackTrace) {
+    super.onError(bloc, error, stackTrace);
+    debugPrint(error.toString());
   }
 }

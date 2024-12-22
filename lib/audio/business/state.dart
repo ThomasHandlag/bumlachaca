@@ -45,25 +45,29 @@ class LocalLibState extends Equatable {
     this.localSongs = const <Song>[],
     this.playLists = const <PlayList>[],
     this.sop = const <SOP>[],
+    this.cacheSongs = const <Song>[],
   });
 
   final List<Song> localSongs;
   final List<PlayList> playLists;
   final List<SOP> sop;
+  final List<Song> cacheSongs;
 
   LocalLibState copyWith({
     List<Song>? localSongs,
     List<PlayList>? playLists,
     List<SOP>? sop,
+    List<Song>? cacheSongs,
   }) {
     return LocalLibState(
         localSongs: localSongs ?? this.localSongs,
         playLists: playLists ?? this.playLists,
+        cacheSongs: cacheSongs ?? this.cacheSongs,
         sop: sop ?? this.sop);
   }
 
   @override
-  List<Object?> get props => [localSongs, playLists, sop];
+  List<Object?> get props => [localSongs, playLists, sop, cacheSongs];
 }
 
 class PlaybackState extends Equatable {
@@ -71,23 +75,30 @@ class PlaybackState extends Equatable {
   final int position;
   final int duration;
   final PlayerState? state;
+  final int? index;
 
   const PlaybackState(
-      {this.song, this.position = 0, this.duration = 0, this.state});
+      {this.song,
+      this.position = 0,
+      this.duration = 0,
+      this.state,
+      this.index});
 
   PlaybackState copyWith({
     Song? song,
     int? position,
     int? duration,
     PlayerState? state,
+    int? index,
   }) {
     return PlaybackState(
         song: song ?? this.song,
         position: position ?? this.position,
         duration: duration ?? this.duration,
+        index: index ?? this.index,
         state: state ?? this.state);
   }
 
   @override
-  List<Object?> get props => [song, position, duration, state];
+  List<Object?> get props => [song, position, duration, state, index];
 }

@@ -104,6 +104,11 @@ class LocalLibBloc extends Bloc<APIEvent, LocalLibState> {
     on<OnGetPlayList>(_getPlayList);
     on<OnGetSongFromPlayList>(_getSongFromPlayList);
     on<OnAddPlayList>(_createPlayList);
+    on<OnAddLocalSongs>(_addLocalSongs);
+    on<OnDeleteSongsFromPlayList>(_deleteSongsFromPlayList);
+    on<OnDeleteLocalSongs>(_deleteLocalSongs);
+    on<OnDeletePlaylists>(_deletePlayLists);
+    on<OnAddSongsToPlaylist>(_addSongsToPlaylist);
   }
 
   Future<void> _getLocalSong(
@@ -122,7 +127,7 @@ class LocalLibBloc extends Bloc<APIEvent, LocalLibState> {
       OnGetSongFromPlayList event, Emitter<LocalLibState> emit) async {
     final sop = await localAudioRepo.getSOP(event.playListId);
     final song = await localAudioRepo.getSongFromPlayList(sop);
-    emit(state.copyWith(localSongs: song));
+    emit(state.copyWith(cacheSongs: song));
   }
 
   Future<void> _createPlayList(
@@ -131,7 +136,42 @@ class LocalLibBloc extends Bloc<APIEvent, LocalLibState> {
     final playList = await localAudioRepo.getPlayLists();
     emit(state.copyWith(playLists: playList));
   }
+
+  Future<void> _addLocalSongs(
+      OnAddLocalSongs event, Emitter<LocalLibState> emit) async {
+    await localAudioRepo.addLocalSongs(event.songs);
+    final localSong = await localAudioRepo.getLocalSongs();
+    emit(state.copyWith(localSongs: localSong));
+  }
+
+  Future<void> _addSongsToPlaylist(
+      OnAddSongsToPlaylist event, Emitter<LocalLibState> emit) async {
+    await localAudioRepo.addSongsToPlayList(event.id, event.songs);
+    final sop = await localAudioRepo.getSOP(event.id);
+    final song = await localAudioRepo.getSongFromPlayList(sop);
+    emit(state.copyWith(cacheSongs: song));
+  }
+
+  Future<void> _deleteSongsFromPlayList(OnDeleteSongsFromPlayList event, Emitter<LocalLibState> emit) async {
+    await localAudioRepo.deleteSongsFromPlayList(event.songs, event.id);
+  }
+
+  Future<void> _deleteLocalSongs(OnDeleteLocalSongs event, Emitter<LocalLibState> emit) async {
+    await localAudioRepo.deleteLocalSongs(event.songs);
+    final localSong = await localAudioRepo.getLocalSongs();
+    emit(state.copyWith(localSongs: localSong));
+  }
+
+  Future<void> _deletePlayLists(OnDeletePlaylists event, Emitter<LocalLibState> emit) async {
+    for (final playList in event.playLists) {
+      await localAudioRepo.deletePlayList(playList.id!);
+    }
+    final playList = await localAudioRepo.getPlayLists();
+    emit(state.copyWith(playLists: playList));
+  }
 }
+
+
 
 final class PlaybackBloc extends Bloc<PlaybackEvent, PlaybackState> {
   PlaybackBloc(super.initialState) {
@@ -139,6 +179,7 @@ final class PlaybackBloc extends Bloc<PlaybackEvent, PlaybackState> {
     on<OnPositionChange>(_onPositionChange);
     on<OnDurationChange>(_onDurationChange);
     on<OnStateChange>(_onStateChange);
+    on<OnPlayAtIndex>(_playAt);
   }
 
   Future<void> _onNewSong(OnNewSong event, Emitter<PlaybackState> emit) async {
@@ -158,5 +199,9 @@ final class PlaybackBloc extends Bloc<PlaybackEvent, PlaybackState> {
   Future<void> _onStateChange(
       OnStateChange event, Emitter<PlaybackState> emit) async {
     emit(state.copyWith(state: event.state));
+  }
+
+  Future<void> _playAt(OnPlayAtIndex event, Emitter<PlaybackState> emit) async {
+    emit(state.copyWith(index: event.index));
   }
 }

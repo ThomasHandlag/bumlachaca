@@ -30,7 +30,7 @@ class _BottomPlayerState extends State<BottomPlayer> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.5),
+                  color: Colors.grey.withAlpha(255 ~/ 2),
                   spreadRadius: 5,
                   blurRadius: 7,
                   offset: const Offset(0, 3),
@@ -92,7 +92,8 @@ class _BottomPlayerState extends State<BottomPlayer> {
                                             borderRadius:
                                                 BorderRadius.circular(5),
                                           ),
-                                          child: state.song == null
+                                          child: state.song == null ||
+                                                  state.song!.fileThumb == ""
                                               ? Image.asset(
                                                   'images/thumb1.jpg',
                                                   width: 50,

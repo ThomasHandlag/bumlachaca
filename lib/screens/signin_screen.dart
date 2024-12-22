@@ -1,10 +1,12 @@
 import 'dart:async';
-import 'dart:io';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:usicat/layouts/default.dart';
 import 'package:usicat/layouts/sign_layout.dart';
 import 'package:platform/platform.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -45,31 +47,46 @@ class SigninScreenState extends State<SignScreen> {
     setState(
       () => _isSyncing = true,
     );
-    await supabase
-        .from('user')
-        .select()
-        .eq('email', _emailController.text)
-        .then((value) {
-      setState(
-        () => _isSyncing = false,
-      );
-      if (value.isNotEmpty) {
-        if (value[0]["password"] == _passwordController.text &&
-            value[0]["email"] == _emailController.text) {
-          context.pushReplacement('/home');
+    try {
+      await supabase
+          .from('user')
+          .select()
+          .eq('email', _emailController.text)
+          .then((value) {
+        setState(
+          () => _isSyncing = false,
+        );
+        if (value.isNotEmpty) {
+          if (value[0]["password"] == _passwordController.text &&
+              value[0]["email"] == _emailController.text) {
+                final prefs = SharedPreferences.getInstance();
+                prefs.then((pref) {
+                  final user = LocalUser(id: 0, email: value[0]["email"], password: value[0]["password"]);
+                  pref.setString('user', jsonEncode(user.toJson()));
+                });
+            context.pushReplacement('/home');
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                content: Text("Invalid password"),
+                backgroundColor: Colors.red,
+                duration: Duration(seconds: 2)));
+          }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text("Invalid password"),
+              content: Text("Account not found"),
               backgroundColor: Colors.red,
               duration: Duration(seconds: 2)));
         }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text("Account not found"),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 2)));
-      }
-    });
+      });
+    } catch (e) {
+      setState(
+        () => _isSyncing = false,
+      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("An error occurred"),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2)));
+    }
   }
 
   void _continueAsGuest() {

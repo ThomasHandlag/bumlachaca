@@ -7,6 +7,7 @@ import 'package:usicat/audio/business/bloc.dart';
 import 'package:usicat/audio/data/service/service.dart';
 import 'package:usicat/main.dart';
 import 'package:usicat/widgets/audio_widget_context.dart';
+import 'package:usicat/widgets/custom_lists.dart';
 import 'package:usicat/widgets/custom_netimage.dart';
 import 'package:usicat/widgets/pulse_container.dart';
 import 'package:usicat/widgets/song_item.dart';
@@ -18,19 +19,17 @@ class Home extends StatefulWidget {
   State<StatefulWidget> createState() => HomeState();
 }
 
-class HomeState extends State<Home> {
+class HomeState extends State<Home> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    tabController = TabController(length: 3, vsync: this);
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
+  bool showCheckBox = false;
 
   Widget createPSongItem(Song song) {
-    return Container(
+    return SizedBox(
         width: 120,
         height: 120,
         child: Column(
@@ -40,7 +39,7 @@ class HomeState extends State<Home> {
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.5),
+                      color: Colors.black.withAlpha(255 ~/ 2),
                       spreadRadius: 0,
                       blurRadius: 2,
                       offset: const Offset(0, 2),
@@ -76,9 +75,12 @@ class HomeState extends State<Home> {
         ));
   }
 
+  late TabController tabController;
+
   @override
   Widget build(BuildContext context) {
     var apiBloc = BlocProvider.of<APIBloc>(context);
+    var localBloc = BlocProvider.of<LocalLibBloc>(context);
     final Widget newReleases = Stack(
       children: <Widget>[
         BlocBuilder<APIBloc, APIState>(
@@ -97,8 +99,12 @@ class HomeState extends State<Home> {
               return Container(
                 height: 250,
                 constraints: const BoxConstraints(maxWidth: 500),
-                child: CustomNetImage(
-                    url: state.newSongs[0].fileThumb, height: 250),
+                child: state.newSongs.isNotEmpty
+                    ? CustomNetImage(
+                        url: state.newSongs[0].fileThumb, height: 250)
+                    : const PulseContainer(
+                        height: 250,
+                      ),
               );
             },
             bloc: apiBloc..add(OnGetNewSong())),
@@ -109,13 +115,13 @@ class HomeState extends State<Home> {
             height: 250,
             constraints: const BoxConstraints(maxWidth: 500),
             decoration: BoxDecoration(
-              color: Colors.grey.shade200.withOpacity(0.4),
+              color: Colors.grey.shade200.withAlpha(255 ~/ 2),
             ),
           ),
         )),
         Container(
             height: 250,
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
             constraints: const BoxConstraints(maxWidth: 400),
             child: BlocBuilder<APIBloc, APIState>(
                 bloc: apiBloc,
@@ -134,12 +140,16 @@ class HomeState extends State<Home> {
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(20)),
                               clipBehavior: Clip.antiAlias,
-                              child: CustomNetImage(
-                                  url: state.newSongs[0].fileThumb,
-                                  width: 150,
-                                  height: 150)),
-                      const SizedBox(
-                        width: 50,
+                              child: state.newSongs.isNotEmpty
+                                  ? CustomNetImage(
+                                      url: state.newSongs[0].fileThumb,
+                                      width: 150,
+                                      height: 150)
+                                  : const PulseContainer(
+                                      height: 150,
+                                    )),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.05,
                       ),
                       Center(
                           child: Column(
@@ -209,14 +219,23 @@ class HomeState extends State<Home> {
                                   height: 20,
                                   borderRadius: BorderRadius.circular(10),
                                 )
-                              : Text(
-                                  state.newSongs[0].title,
-                                  style: TextStyle(
-                                      fontSize: MusicAppThemeData.of(context)
-                                          .textSizeScheme
-                                          .headlineSmall,
-                                      fontWeight: FontWeight.w600),
-                                ),
+                              : state.newSongs.isNotEmpty
+                                  ? Container(
+                                      constraints:
+                                          const BoxConstraints(maxWidth: 100),
+                                      child: Text(
+                                        state.newSongs[0].title,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                            fontSize:
+                                                MusicAppThemeData.of(context)
+                                                    .textSizeScheme
+                                                    .labelMedium,
+                                            fontWeight: FontWeight.w600),
+                                      ))
+                                  : const PulseContainer(
+                                      height: 20,
+                                    ),
                           const SizedBox(height: 5),
                           state.status == FetChStatus.loading ||
                                   state.status == FetChStatus.error
@@ -225,10 +244,17 @@ class HomeState extends State<Home> {
                                   height: 20,
                                   borderRadius: BorderRadius.circular(10),
                                 )
-                              : Text(
-                                  state.newSongs[0].artist,
-                                  style: const TextStyle(fontSize: 15),
-                                ),
+                              : state.newSongs.isNotEmpty
+                                  ? Text(
+                                      state.newSongs[0].artist,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          fontSize:
+                                              MusicAppThemeData.of(context)
+                                                  .textSizeScheme
+                                                  .labelSmall),
+                                    )
+                                  : const PulseContainer(height: 15),
                           IconButton.filled(
                               onPressed: () {
                                 if (state.newSongs.isNotEmpty) {
@@ -275,7 +301,11 @@ class HomeState extends State<Home> {
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
                   itemBuilder: (_, index) {
-                    return createPSongItem(state.popularSongs[index]);
+                    if (state.popularSongs.isNotEmpty) {
+                      return createPSongItem(state.popularSongs[index]);
+                    } else {
+                      return const PulseContainer(width: 120, height: 120);
+                    }
                   },
                   separatorBuilder: (_, index) {
                     return const SizedBox(
@@ -300,11 +330,12 @@ class HomeState extends State<Home> {
             child: Column(
               children: [
                 TabBar(
-                  dividerHeight: 0,
+                  dividerHeight: 1,
+                  controller: tabController,
                   tabs: [
                     Tab(
                       child: Text(
-                        "Recently",
+                        "Suggest",
                         style: TextStyle(
                             fontSize: MusicAppThemeData.of(context)
                                 .textSizeScheme
@@ -314,7 +345,7 @@ class HomeState extends State<Home> {
                     ),
                     Tab(
                       child: Text(
-                        "Top Charts",
+                        "Local",
                         style: TextStyle(
                             fontSize: MusicAppThemeData.of(context)
                                 .textSizeScheme
@@ -324,7 +355,7 @@ class HomeState extends State<Home> {
                     ),
                     Tab(
                       child: Text(
-                        "Similar",
+                        "Playlist",
                         style: TextStyle(
                             fontSize: MusicAppThemeData.of(context)
                                 .textSizeScheme
@@ -335,14 +366,22 @@ class HomeState extends State<Home> {
                   ],
                 ),
                 Expanded(
-                    child: TabBarView(children: [
+                    child: TabBarView(controller: tabController, children: [
                   BlocBuilder<APIBloc, APIState>(
                       bloc: apiBloc..add(OnGetSongs()),
                       builder: (context, state) {
                         return ListChildRender(songs: state.searchSongs);
                       }),
-                  ListChildRender(songs: []),
-                  ListChildRender(songs: [])
+                  BlocBuilder<LocalLibBloc, LocalLibState>(
+                      bloc: localBloc..add(OnGetLocalSong()),
+                      builder: (_, state) {
+                        return LocalSongList(songs: state.localSongs);
+                      }),
+                  BlocBuilder<LocalLibBloc, LocalLibState>(
+                      bloc: localBloc..add(OnGetPlayList()),
+                      builder: (_, state) {
+                        return PlaylistView(playLists: state.playLists);
+                      })
                 ]))
               ],
             )));
@@ -368,7 +407,7 @@ class HomeState extends State<Home> {
                   },
                   separatorBuilder: (_, index) {
                     return const SizedBox(
-                      height: 5,
+                      height: 1,
                     );
                   },
                   itemCount: 4);
@@ -381,8 +420,9 @@ class HomeState extends State<Home> {
 // system context, container, component architexture
 
 class ListChildRender extends StatefulWidget {
-  const ListChildRender({super.key, required this.songs});
+  const ListChildRender({super.key, required this.songs, this.item});
   final List<Song> songs;
+  final Widget? item;
 
   @override
   State<ListChildRender> createState() => _ListChildRenderState();
@@ -394,12 +434,21 @@ class _ListChildRenderState extends State<ListChildRender> {
       padding: const EdgeInsets.all(20),
       child: ScrollConfiguration(
           behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
-          child: ListView.separated(
-              itemBuilder: (_, index) {
-                return SongItem(song: widget.songs[index]);
-              },
-              separatorBuilder: (_, index) => const SizedBox(
-                    height: 10,
-                  ),
-              itemCount: widget.songs.length)));
+          child: widget.item == null
+              ? ListView.separated(
+                  itemBuilder: (_, index) {
+                    return widget.songs.isNotEmpty
+                        ? SongItem(song: widget.songs[index])
+                        : ListTile(
+                            title: PulseContainer(
+                              borderRadius: BorderRadius.circular(10),
+                              height: 50,
+                            ),
+                          );
+                  },
+                  separatorBuilder: (_, index) => const SizedBox(
+                        height: 5,
+                      ),
+                  itemCount: widget.songs.isNotEmpty ? widget.songs.length : 6)
+              : widget.item!));
 }

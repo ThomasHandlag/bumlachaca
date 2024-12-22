@@ -1,13 +1,12 @@
 import 'dart:convert';
-import 'dart:io';
-
-import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:platform/platform.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:usicat/helper/err_log.dart';
+import 'package:usicat/layouts/default.dart';
 import 'package:usicat/layouts/sign_layout.dart';
 import 'package:usicat/main.dart';
 import 'package:usicat/widgets/snackbar_content.dart';
@@ -106,9 +105,13 @@ class SignupScreenState extends State {
         'email': _emailController.text,
         'password': _passwordController.text
       }).then((value) {
-        sleep(const Duration(seconds: 2));
         setState(() => _showProgress = false);
-        // context.pushReplacement('/home');
+        final prefs = SharedPreferences.getInstance();
+                prefs.then((pref) {
+                  final user = LocalUser(id: 0, email: _emailController.text, password: _passwordController.text);
+                  pref.setString('user', jsonEncode(user.toJson()));
+                });
+        context.pushReplacement('/home');
       });
     } catch (e) {
       setState(() => _showProgress = false);

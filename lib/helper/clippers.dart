@@ -83,8 +83,8 @@ class VisualizerClipper extends CustomClipper<Path> {
   const VisualizerClipper({this.radius = 10.0});
   @override
   Path getClip(Size size) {
-    final double xScaling = size.width / 414;
-    final double yScaling = size.height / 896;
+    // final double xScaling = size.width / 414;
+    // final double yScaling = size.height / 896;
 
     // Create a rectangle with rounded corners using RRect
     final rrect = RRect.fromRectAndRadius(

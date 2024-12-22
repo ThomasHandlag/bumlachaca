@@ -66,12 +66,12 @@ class _PulseContainerState extends State<PulseContainer>
             decoration: BoxDecoration(
               borderRadius: widget.borderRadius,
               gradient: LinearGradient(colors: [
-                Colors.grey.shade600,
-                Colors.grey
+                Colors.grey.shade600.withAlpha(255 ~/ 2),
+                Colors.grey.withAlpha(255 ~/ 4)
               ], stops: [
                 _pulseAnimation.value - (0.2 * 10),
                 _pulseAnimation.value,
-              ]),
+              ], transform: const GradientRotation(0.5)),
             ),
           );
         });

@@ -2,6 +2,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:usicat/audio/data/service/local_lib.dart';
 import 'package:usicat/layouts/custom_scaffold.dart';
 import 'package:usicat/layouts/default.dart';
@@ -10,7 +11,6 @@ import 'package:platform/platform.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:usicat/screens/preview.dart';
 import 'package:usicat/screens/signin_screen.dart';
 import 'package:usicat/screens/signup_screen.dart';
 import 'package:win32_registry/win32_registry.dart';
@@ -45,11 +45,19 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   audioPlayer = AudioPlayer();
   //initialize database
-  DatabaseHelper();
-  await Supabase.initialize();
+  await Supabase.initialize(
+    url: 'https://yixrncvqpwbtjztmkenx.supabase.co',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpeHJuY3ZxcHdidGp6dG1rZW54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjQ0OTYyNTQsImV4cCI6MjA0MDA3MjI1NH0.RzNZzoPBJbEt4u5ertugmVqlxwrcCfHVxayJ-PuqKnQ',
+  );
   if (platform.isWindows) {
     await register('usicat');
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
   }
+
+  DatabaseHelper();
+
   // Bloc.observer = MusicAppBlocObserver();
   runApp(const MusicApp());
 }
@@ -61,16 +69,12 @@ final ValueNotifier<RoutingConfig> routingConfig = ValueNotifier(RoutingConfig(
   routes: [
     GoRoute(
       path: '/',
-      builder: (BuildContext context, GoRouterState state) =>
-          (platform.isAndroid || platform.isIOS)
-              ? const Default()
-              : const Splash(),
+      builder: (BuildContext context, GoRouterState state) => const Splash(),
     ),
     GoRoute(
       path: '/default',
       builder: (context, state) => const Default(),
     ),
-    GoRoute(path: '/preview', builder: (context, state) => const Preview()),
     GoRoute(path: '/signin', builder: (context, state) => const SignScreen()),
     GoRoute(path: '/signup', builder: (context, state) => const SignupScreen()),
     GoRoute(

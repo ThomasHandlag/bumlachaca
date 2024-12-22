@@ -44,28 +44,15 @@ class _PlayerState extends State<Player> {
                 minute = (second / 60).floor();
                 second = second % 60;
 
-                int d_sec = (state.duration / 1000).floor();
-                int d_m = (d_sec / 60).floor();
-                d_sec = d_sec % 60;
+                int dSec = (state.duration / 1000).floor();
+                int dM = (dSec / 60).floor();
+                dSec = dSec % 60;
 
-                minLast = d_m - minute;
-                secLast = (d_sec - second).abs();
+                minLast = dM - minute;
+                secLast = (dSec - second).abs();
               }
 
-              return Transform.translate(
-                  offset: const Offset(0, 10),
-                  child: Column(
-                    children: [
-                      MediaQuery.of(context).size.width > 600
-                          ? Container(
-                              padding: const EdgeInsets.all(20),
-                              child: const Row(
-                                children: [
-                                  Text("Toolbar"),
-                                ],
-                              ))
-                          : const SizedBox(),
-                      Expanded(
+              return  SingleChildScrollView(
                           child: Container(
                               padding: EdgeInsets.only(
                                   top:
@@ -93,14 +80,15 @@ class _PlayerState extends State<Player> {
                                               BorderRadius.circular(20),
                                           boxShadow: [
                                             BoxShadow(
-                                              color:
-                                                  Colors.grey.withOpacity(1.0),
+                                              color: Colors.grey
+                                                  .withAlpha(255 ~/ 2),
                                               spreadRadius: 2,
                                               blurRadius: 7,
                                               offset: const Offset(0, 2),
                                             )
                                           ]),
-                                      child: state.song == null
+                                      child: state.song == null ||
+                                              state.song!.fileThumb == ""
                                           ? Image.asset(
                                               'images/thumb1.jpg',
                                               fit: BoxFit.cover,
@@ -155,7 +143,8 @@ class _PlayerState extends State<Player> {
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
-                                          state.song == null
+                                          state.song == null ||
+                                                  state.song!.artist == ""
                                               ? "Unknown"
                                               : state.song!.artist,
                                           style: const TextStyle(fontSize: 12),
@@ -268,9 +257,7 @@ class _PlayerState extends State<Player> {
                                     ],
                                   )
                                 ],
-                              )))
-                    ],
-                  ));
+                              )));
             })
       ],
     );

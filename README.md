@@ -10,6 +10,8 @@ A music player with attractive visualizer 😺.
 
 `flutter pub get`
 
+`flutter pub add intl:any`
+
 **** build ****
 
 `flutter build [option]`

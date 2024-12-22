@@ -53,4 +53,32 @@ class LocalAudioRepo {
   Future<void> createPlayList(String name) async {
     await db.createPlayList(PlayList(name: name));
   }
+
+  Future<void> deletePlayList(int id) async {
+    await db.deletePlayList(id);
+  }
+
+  Future<void> addLocalSongs(List<Song> songs) async {
+    for (final song in songs) {
+      await db.addSong(song);
+    }
+  }
+
+  Future<void> deleteLocalSongs(List<Song> songs) async {
+    for (final song in songs) {
+      await db.deleteSong(song.id!);
+    }
+  }
+
+  Future<void> deleteSongsFromPlayList(List<Song> songs, int id) async {
+    for (final song in songs) {
+      await db.deleteSongfromPlayList(song.id!, id);
+    }
+  }
+
+  Future<void> addSongsToPlayList(int id, List<Song> songs) async {
+    for (final song in songs) {
+      await db.addSOP(SOP(playlistId: id, songId: song.id!).toMap());
+    }
+  }
 }

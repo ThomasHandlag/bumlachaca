@@ -1,12 +1,15 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:usicat/audio/business/bloc.dart';
 import 'package:usicat/audio/data/service/service.dart';
 import 'package:usicat/widgets/audio_widget_context.dart';
-import 'package:usicat/widgets/more_btn.dart';
+import 'package:usicat/widgets/custom_netimage.dart';
 
 class SongItem extends StatefulWidget {
-  const SongItem({super.key, required this.song});
+  const SongItem({super.key, required this.song, this.child});
   final Song song;
+  final Widget? child;
   @override
   State<SongItem> createState() => _SongItemState();
 }
@@ -16,19 +19,20 @@ class _SongItemState extends State<SongItem> {
   Widget build(BuildContext context) {
     return Container(
         decoration: BoxDecoration(
-          color: Color(0xA1CEC7FF),
+          color: const Color(0xA1CEC7FF),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Material(
-            color: Color(0xA1CEC7FF),
+            color: const Color(0xA1CEC7FF),
             borderRadius: BorderRadius.circular(10),
             child: InkWell(
                 onTap: () {
-                  AudioWidgetContext.of(context)!
-                      .audioPlayer
-                      .play(UrlSource(widget.song.fileUrl));
+                  BlocProvider.of<PlaybackBloc>(context)
+                      .add(OnNewSong(widget.song));
+                  AudioWidgetContext.of(context)!.audioPlayer.play(UrlSource(
+                      '${AudioApiService.baseUrl.replaceAll("/api/v2", '')}/${widget.song.fileUrl}'));
                 },
-                splashColor: Color(0xA1CEC7FF),
+                splashColor: const Color(0xA1CEC7FF),
                 borderRadius: BorderRadius.circular(10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -40,40 +44,35 @@ class _SongItemState extends State<SongItem> {
                           padding: const EdgeInsets.all(5),
                           width: 60,
                           height: 60,
+                          clipBehavior: Clip.antiAlias,
                           decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10)),
-                          child: Container(
-                              decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            image: DecorationImage(
-                                image: AssetImage(widget.song.fileThumb),
-                                fit: BoxFit.cover),
-                          )),
+                              borderRadius: BorderRadius.circular(20)),
+                          child: CustomNetImage(url: widget.song.fileThumb),
                         ),
-                        Column(
+                        Container(
+                          constraints: BoxConstraints(
+                              maxWidth: MediaQuery.of(context).size.width > 500 ? 500 : 200, minWidth: 200),
+                          child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               widget.song.title,
+                              overflow: TextOverflow.fade,
                               style: const TextStyle(
                                   fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                             Text(
                               widget.song.artist,
+                               overflow: TextOverflow.fade,
                               style: const TextStyle(
                                   fontSize: 14, fontWeight: FontWeight.normal),
                             )
                           ],
                         ),
+                        ),
                       ],
                     ),
-                    MoreButton(
-                      children: [
-                        const Text('Details'),
-                        const Text('Add to Playlist'),
-                        const Text('Share'),
-                      ],
-                    )
+                   widget.child ?? const SizedBox()
                   ],
                 ))));
   }

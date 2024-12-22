@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 import 'package:sqflite_common/sqflite.dart';
 import 'package:usicat/audio/data/service/service.dart';
@@ -46,7 +47,7 @@ class DatabaseHelper {
   }
 
   Future<Database> _initializeDatabase() async {
-    final dbPath = await getDatabasesPath();
+    final dbPath = await databaseFactory.getDatabasesPath();
     final path = join(dbPath, 'usicat.db');
 
     return await openDatabase(
@@ -56,7 +57,7 @@ class DatabaseHelper {
         await db.execute('''
       CREATE TABLE playlists (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL UNIQUE,
+        name TEXT NOT NULL UNIQUE
       )
     ''');
 
@@ -64,7 +65,7 @@ class DatabaseHelper {
       CREATE TABLE songs (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
-        url TEXT NOT NULL UNIQUE,
+        url TEXT NOT NULL UNIQUE
       )
     ''');
 
@@ -106,6 +107,7 @@ class DatabaseHelper {
     return await db.insert(
       'sop',
       item,
+      conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
@@ -118,14 +120,14 @@ class DatabaseHelper {
   Future<List<PlayList>> getPlayLists() async {
     final db = await database;
     final List<Map<String, dynamic>> counts = await db.rawQuery(
-        "SELECT COUNT(sondId) as scount FROM sop GROUP BY playlistId");
+        "SELECT COUNT(songId) as scount FROM sop GROUP BY playlistId");
     final List<Map<String, dynamic>> maps = await db.query('playlists');
-
+    debugPrint(counts.length.toString());
     final List<PlayList> playList = List.generate(maps.length, (i) {
       return PlayList(
         id: maps[i]['id'],
         name: maps[i]['name'],
-        count: counts[i]['scount'],
+        count: counts.isNotEmpty ? counts[i]['scount'] : 0,
       );
     });
 
@@ -151,12 +153,12 @@ class DatabaseHelper {
     );
   }
 
-  Future<int> deleteSongfromPlayList(int id) async {
+  Future<int> deleteSongfromPlayList(int songid, int id) async {
     final db = await database;
     return await db.delete(
       'sop',
-      where: 'songId = ?',
-      whereArgs: [id],
+      where: 'songId = ? AND playlistId = ?',
+      whereArgs: [songid, id],
     );
   }
 
@@ -184,6 +186,15 @@ class DatabaseHelper {
         fileUrl: maps[i]['url'],
       );
     });
+  }
+
+  Future<void> deleteSong(int id) async {
+    final db = await database;
+    await db.delete(
+      'songs',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 }
 

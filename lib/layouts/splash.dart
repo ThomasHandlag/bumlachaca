@@ -3,9 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'package:usicat/layouts/default.dart';
-import 'package:platform/platform.dart';
-
 class Splash extends StatelessWidget {
   const Splash({super.key});
 
@@ -44,17 +41,11 @@ class SplashAnimationState extends State<SplashAnimation>
   @override
   void initState() {
     super.initState();
-    Platform platform = const LocalPlatform();
     _controller = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 2000));
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        if (platform.isMacOS ||
-            platform.isLinux ||
-            platform.isWindows ||
-            platform.isFuchsia) {
           context.pushReplacement('/default');
-        }
       }
     });
     double x = widget.screenSize.dx;

@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:usicat/audio/business/bloc.dart';
 import 'package:usicat/audio/data/repository/audio_repository.dart';
 import 'package:usicat/audio/data/service/service.dart';
@@ -59,6 +58,24 @@ class _CustomScaffoldState extends State<CustomScaffold> {
     widget.player.onPlayerStateChanged.listen((state) {
       playbackBloc.add(OnStateChange(state));
     });
+    widget.player.onPlayerComplete.listen((event) {
+      if (localLibBloc.state.localSongs.isNotEmpty &&
+          playbackBloc.state.song != null) {
+        var index = playbackBloc.state.index ?? 0;
+        if (index < localLibBloc.state.localSongs.length-1) {
+          playbackBloc.add(OnPlayAtIndex(index + 1));
+          index = playbackBloc.state.index!;
+          playbackBloc.add(OnNewSong(localLibBloc.state.localSongs[index]));
+          widget.player.play(
+              UrlSource(localLibBloc.state.localSongs[index].fileUrl));
+        } else {
+          playbackBloc.add(OnPlayAtIndex(0));
+          playbackBloc.add(OnNewSong(localLibBloc.state.localSongs[0]));
+          widget.player.play(
+              UrlSource(localLibBloc.state.localSongs[0].fileUrl));
+        }
+      }
+    });
   }
 
   int _pageIndex = 0;
@@ -68,9 +85,7 @@ class _CustomScaffoldState extends State<CustomScaffold> {
     PreferredSizeWidget? appBar;
     Widget? bottomPlayer;
     Drawer? drawer;
-    final String location = GoRouterState.of(context).uri.path;
-    if (MediaQuery.of(context).size.width < 600 &&
-        location.compareTo('/home') == 0) {
+    if (MediaQuery.of(context).size.width < 500) {
       appBar = AppBar(
         actions: [
           IconButton(
@@ -171,12 +186,13 @@ class _CustomScaffoldState extends State<CustomScaffold> {
             child: Container(
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
-              decoration: BoxDecoration(color: Colors.white.withOpacity(0.5)),
+              decoration:
+                  BoxDecoration(color: Colors.white.withAlpha(255 ~/ 2)),
             ),
           )),
           Row(
             children: [
-              MediaQuery.of(context).size.width > 600
+              MediaQuery.of(context).size.width > 500
                   ? NavigationRail(
                       extended: _extended,
                       elevation: 10,

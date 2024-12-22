@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class Song extends Equatable {
@@ -55,7 +54,8 @@ class Song extends Equatable {
 }
 
 class AudioApiService {
-  static String baseUrl = '';
+  // final String baseUrl = 'https://knowing-ray-trivially.ngrok-free.app/api/v2';
+  static String baseUrl = 'http://192.168.100.101:3000/api/v2';
 
   static String get url => baseUrl;
 

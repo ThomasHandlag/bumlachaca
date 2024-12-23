@@ -1,7 +1,7 @@
-import 'package:audioplayers/audioplayers.dart';
+import 'package:audiopc/audiopc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:usicat/audio/business/bloc.dart';
+import 'package:usicat/audio/business/blocs.dart';
 import 'package:usicat/screens/player.dart';
 import 'package:usicat/widgets/audio_widget_context.dart';
 import 'package:usicat/widgets/custom_netimage.dart';
@@ -27,7 +27,6 @@ class _BottomPlayerState extends State<BottomPlayer> {
         return Container(
             height: 60,
             decoration: BoxDecoration(
-              color: Colors.white,
               boxShadow: [
                 BoxShadow(
                   color: Colors.grey.withAlpha(255 ~/ 2),
@@ -38,7 +37,6 @@ class _BottomPlayerState extends State<BottomPlayer> {
               ],
             ),
             child: Material(
-                color: Colors.white,
                 child: InkWell(
                     onTap: () {
                       showModalBottomSheet(
@@ -47,12 +45,10 @@ class _BottomPlayerState extends State<BottomPlayer> {
                           showDragHandle: true,
                           isScrollControlled: true,
                           barrierColor: Colors.transparent,
-                          backgroundColor: Colors.white,
                           elevation: 10,
                           constraints: BoxConstraints(
                               // minHeight: kBottomNavigationBarHeight,
-                              maxHeight: MediaQuery.of(context).size.height -
-                                  kToolbarHeight),
+                              maxHeight: MediaQuery.of(context).size.height),
                           builder: (_) {
                             return Player(
                               audioPlayer:
@@ -125,24 +121,20 @@ class _BottomPlayerState extends State<BottomPlayer> {
                                   ),
                                   IconButton(
                                     icon: Icon(
-                                        state.state == PlayerState.playing
+                                        state.state == AudiopcState.playing
                                             ? Icons.pause
                                             : Icons.play_arrow),
                                     onPressed: () {
                                       final audioPlayer =
                                           AudioWidgetContext.of(context)!
                                               .audioPlayer;
-                                      if (audioPlayer.source != null) {
                                         if (audioPlayer.state ==
-                                            PlayerState.playing) {
+                                            AudiopcState.playing) {
                                           audioPlayer.pause();
                                         } else if (audioPlayer.state ==
-                                            PlayerState.paused) {
-                                          audioPlayer.resume();
+                                            AudiopcState.paused) {
+                                          audioPlayer.play();
                                         }
-                                      } else {
-                                        // play the lastest played song
-                                      }
                                     },
                                   ),
                                 ],

@@ -10,7 +10,6 @@ class MoreButton extends StatelessWidget {
       child: Container(
         clipBehavior: Clip.antiAlias,
           decoration: const BoxDecoration(
-            color: Colors.white,
             shape: BoxShape.circle,
           ),
           child: PopupMenuButton(

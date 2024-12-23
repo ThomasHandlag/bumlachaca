@@ -3,7 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  audioplayers_linux
+  audiopc
   gtk
   url_launcher_linux
 )

@@ -51,7 +51,6 @@ dependencies:
   flutter_bloc: ^8.1.6
   win32_registry: ^1.1.5
   crypto: ^3.0.6
-  audioplayers: ^6.1.0
   http: ^1.2.2
   equatable: ^2.0.5
   sqflite: ^2.4.1
@@ -62,8 +61,10 @@ dependencies:
   bloc: ^8.1.4
   bloc_concurrency: ^0.2.5
   file_picker: ^8.1.4
-  # audiopc:
-  #   path: "D:/Documents/Github/audiopc"
+  fftea: ^1.5.0+1
+  # audioplayers: ^6.1.0
+  audiopc:
+    path: "D:/Documents/Github/audiopc"
 dev_dependencies:
   flutter_test:
     sdk: flutter

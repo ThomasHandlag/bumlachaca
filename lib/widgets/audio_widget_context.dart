@@ -1,5 +1,5 @@
+import 'package:audiopc/audiopc.dart';
 import 'package:flutter/material.dart';
-import 'package:audioplayers/audioplayers.dart';
 
 class AudioWidgetContext extends InheritedWidget {
   const AudioWidgetContext({
@@ -8,7 +8,7 @@ class AudioWidgetContext extends InheritedWidget {
     required this.audioPlayer,
   });
 
-  final AudioPlayer audioPlayer;
+  final Audiopc audioPlayer;
 
   static AudioWidgetContext? of(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<AudioWidgetContext>();

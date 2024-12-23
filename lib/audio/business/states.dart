@@ -1,4 +1,4 @@
-part of 'bloc.dart';
+part of 'blocs.dart';
 
 enum FetChStatus { loading, loaded, error }
 
@@ -72,33 +72,70 @@ class LocalLibState extends Equatable {
 
 class PlaybackState extends Equatable {
   final Song? song;
-  final int position;
-  final int duration;
-  final PlayerState? state;
+  final double position;
+  final double duration;
+  final AudiopcState? state;
   final int? index;
+  final List<double>? samples;
+  final int playMode;
 
   const PlaybackState(
       {this.song,
       this.position = 0,
       this.duration = 0,
       this.state,
+      this.samples,
+      this.playMode = 0,
       this.index});
 
   PlaybackState copyWith({
     Song? song,
-    int? position,
-    int? duration,
-    PlayerState? state,
+    double? position,
+    double? duration,
+    AudiopcState? state,
     int? index,
+    List<double>? samples,
+    int? playMode,
   }) {
     return PlaybackState(
         song: song ?? this.song,
         position: position ?? this.position,
         duration: duration ?? this.duration,
         index: index ?? this.index,
+        samples: samples ?? this.samples,
+        playMode: playMode ?? this.playMode,
         state: state ?? this.state);
   }
 
   @override
-  List<Object?> get props => [song, position, duration, state, index];
+  List<Object?> get props =>
+      [song, position, duration, state, index, samples, playMode];
+}
+
+final class GlobalUIState extends Equatable {
+  const GlobalUIState(
+      {this.pageIndex = 0,
+      this.colorScheme,
+      this.language = 'en',
+      this.isDark = true});
+
+  final int? pageIndex;
+  final String? language;
+  final ColorScheme? colorScheme;
+  final bool? isDark;
+
+  GlobalUIState copyWith(
+      {int? pageIndex,
+      String? language,
+      ColorScheme? colorScheme,
+      bool? isDark}) {
+    return GlobalUIState(
+        pageIndex: pageIndex ?? this.pageIndex,
+        language: language ?? this.language,
+        isDark: isDark ?? this.isDark,
+        colorScheme: colorScheme ?? this.colorScheme);
+  }
+
+  @override
+  List<Object?> get props => [pageIndex, language, colorScheme, isDark];
 }

@@ -1,16 +1,13 @@
-import 'dart:io';
-import 'dart:math';
-
-import 'package:audioplayers/audioplayers.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:usicat/audio/business/bloc.dart';
+import 'package:usicat/audio/business/blocs.dart';
 import 'package:usicat/audio/data/service/local_lib.dart';
 import 'package:usicat/audio/data/service/service.dart';
 import 'package:usicat/screens/home.dart';
 import 'package:usicat/screens/playlist_ui.dart';
 import 'package:usicat/widgets/audio_widget_context.dart';
+import 'package:usicat/widgets/local_item.dart';
 import 'package:usicat/widgets/more_btn.dart';
 
 class LocalSongList extends StatefulWidget {
@@ -20,22 +17,15 @@ class LocalSongList extends StatefulWidget {
   State<LocalSongList> createState() => _LocalSongListState();
 }
 
-class _LocalSongListState extends State<LocalSongList>
-    with TickerProviderStateMixin {
+class _LocalSongListState extends State<LocalSongList> {
   List<bool> checkList = [];
   bool showCheckBox = false;
   bool _checkAll = false;
-
-  late AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
     checkList = List.generate(widget.songs.length, (index) => false);
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1000),
-    )..repeat();
   }
 
   List<Song> _deleteSongs() {
@@ -47,16 +37,8 @@ class _LocalSongListState extends State<LocalSongList>
   }
 
   @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final audioPlayer = AudioWidgetContext.of(context)!.audioPlayer;
     final localBloc = BlocProvider.of<LocalLibBloc>(context);
-    final playerBloc = BlocProvider.of<PlaybackBloc>(context);
     return ListChildRender(
         songs: widget.songs,
         item: Column(
@@ -132,116 +114,27 @@ class _LocalSongListState extends State<LocalSongList>
             Expanded(
                 child: ListView.separated(
                     itemBuilder: (_, index) {
-                      final bool isPlaying =
-                          playerBloc.state.song == widget.songs[index];
-                      return ListTile(
+                      return LocalItem(
+                          song: widget.songs[index],
                           onTap: () {
-                            audioPlayer.play(UrlSource(
-                                widget.songs[index].fileUrl
-                                    .replaceAll('\\', '/'),
-                                mimeType: "audio/mpeg"));
-                            final i = localBloc.state.localSongs.indexWhere(
-                                (element) => element == widget.songs[index]);
-                            playerBloc.add(OnPlayAtIndex(i));
-                            playerBloc.add(OnNewSong(widget.songs[index]));
+                            BlocProvider.of<PlaybackBloc>(context)
+                                .add(OnNewSong(widget.songs[index]));
                           },
-                          onLongPress: () {
+                          onLongPress: (int id) {
                             setState(() {
                               showCheckBox = true;
                             });
-                            checkList[index] = true;
+                            final i = widget.songs.indexWhere((s) => s.id == id);
+                            checkList[i]= true;
                           },
-                          leading: isPlaying
-                              ? AnimatedBuilder(
-                                  animation: _controller,
-                                  builder: (_, child) {
-                                    return CustomPaint(
-                                      painter: MiniVisualizer(
-                                          waveData: [0, 0, 0],
-                                          isPlaying: isPlaying,
-                                          delta: _controller.value),
-                                      child: const SizedBox(
-                                        width: 30,
-                                        height: 20,
-                                      ),
-                                    );
-                                  })
-                              : Container(
-                                  width: 10,
-                                  height: 10,
-                                  decoration: const BoxDecoration(
-                                      color: Color(0xFF3465F3),
-                                      shape: BoxShape.circle),
-                                ),
-                          title: Text(widget.songs[index].title),
-                          subtitle: const Text("Unknown"),
-                          trailing: showCheckBox
-                              ? Checkbox(
-                                  value: checkList[index],
-                                  onChanged: (val) {
-                                    setState(() {
-                                      checkList[index] = val!;
-                                    });
-                                  })
-                              : MoreButton(children: [
-                                  PopupMenuItem(
-                                    child: const Text("Add to playlist"),
-                                    onTap: () {
-                                      showDialog(
-                                          context: context,
-                                          builder: (_) {
-                                            final playLists =
-                                                localBloc.state.playLists;
-                                            return Dialog(
-                                              child: Container(
-                                                padding:
-                                                    const EdgeInsets.all(10),
-                                                width: 300,
-                                                height: 500,
-                                                child: Column(
-                                                  children: [
-                                                    const Text(
-                                                        "Add to playlist"),
-                                                    const Divider(
-                                                      height: 2,
-                                                    ),
-                                                    Expanded(
-                                                        child: ListView.builder(
-                                                            itemCount: playLists
-                                                                .length,
-                                                            itemBuilder:
-                                                                ((_, pIndex) {
-                                                              return ListTile(
-                                                                title: Text(
-                                                                    playLists[
-                                                                            pIndex]
-                                                                        .name),
-                                                                onTap: () {
-                                                                  localBloc.add(
-                                                                      OnAddSongsToPlaylist([
-                                                                    widget.songs[
-                                                                        index]
-                                                                  ], playLists[pIndex].id!));
-                                                                  Navigator.pop(
-                                                                      context);
-                                                                },
-                                                              );
-                                                            }))),
-                                                    ElevatedButton(
-                                                        onPressed: () {
-                                                          Navigator.pop(
-                                                              context);
-                                                        },
-                                                        child: const Text(
-                                                            "Cancel"))
-                                                  ],
-                                                ),
-                                              ),
-                                            );
-                                          });
-                                    },
-                                  ),
-                                ]));
+                          checked: checkList[index],
+                          showCheckBox: showCheckBox,
+                          onCheck: (int id) {
+                            final i = widget.songs.indexWhere((s) => s.id == id);
+                            setState(() {
+                              checkList[i] = !checkList[i];
+                            });
+                          });
                     },
                     separatorBuilder: (_, index) => const SizedBox(),
                     itemCount: widget.songs.length))
@@ -389,11 +282,11 @@ class _PlaylistViewState extends State<PlaylistView> {
 }
 
 class MiniVisualizer extends CustomPainter {
-  final List<double> waveData;
   bool isPlaying;
-  final double delta;
+  double delta;
+  List<double> waveData;
   MiniVisualizer(
-      {required this.waveData, this.isPlaying = false, required this.delta});
+      {this.isPlaying = false, required this.delta, required this.waveData});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -402,21 +295,16 @@ class MiniVisualizer extends CustomPainter {
       ..strokeWidth = 2
       ..strokeCap = StrokeCap.round;
     final path = Path();
-    int barCount = 3;
-    final random = Random();
-    waveData[0] = random.nextDouble();
-    waveData[1] = random.nextDouble();
-    waveData[2] = random.nextDouble();
     // Bar width and spacing
-    double barWidth = size.width / (barCount * 1.5); // Spacing between bars
+    double barWidth = size.width / (3 * 2); // Spacing between bars
     double spacing = barWidth / 2;
-    final maxV =
-        waveData.reduce((value, element) => value > element ? value : element);
-    for (int i = 0; i < barCount; i++) {
-      var barHeight = waveData[i] / maxV * delta * size.height;
+
+    for (int i = 0; i < 3; i++) {
+      var barHeight = waveData[i] * delta;
       if (barHeight > size.height) {
         barHeight = size.height;
       }
+
       double x = i * (barWidth + spacing);
       Rect barRect =
           Rect.fromLTWH(x, size.height - barHeight, barWidth, barHeight);
@@ -428,5 +316,5 @@ class MiniVisualizer extends CustomPainter {
 
   @override
   bool shouldRepaint(MiniVisualizer oldDelegate) =>
-      waveData != oldDelegate.waveData && isPlaying;
+      delta != oldDelegate.delta && isPlaying;
 }

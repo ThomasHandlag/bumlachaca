@@ -1,8 +1,9 @@
+import 'dart:math';
 import 'dart:ui';
-import 'package:audioplayers/audioplayers.dart';
+import 'package:audiopc/audiopc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:usicat/audio/business/bloc.dart';
+import 'package:usicat/audio/business/blocs.dart';
 import 'package:usicat/audio/data/repository/audio_repository.dart';
 import 'package:usicat/audio/data/service/service.dart';
 import 'package:usicat/main.dart';
@@ -16,7 +17,7 @@ import 'package:usicat/widgets/bottom_player.dart';
 class CustomScaffold extends StatefulWidget {
   const CustomScaffold({super.key, required this.player});
 
-  final AudioPlayer player;
+  final Audiopc player;
 
   @override
   State<CustomScaffold> createState() => _CustomScaffoldState();
@@ -44,35 +45,47 @@ class _CustomScaffoldState extends State<CustomScaffold> {
 
   @override
   void dispose() {
-    widget.player.dispose();
+    widget.player.close();
     super.dispose();
   }
 
   void _createListener() {
-    widget.player.onDurationChanged.listen((duration) {
-      playbackBloc.add(OnDurationChange(duration.inMilliseconds));
+    widget.player.onDurationChanged = ((duration) {
+      playbackBloc.add(OnDurationChange(duration));
     });
-    widget.player.onPositionChanged.listen((position) {
-      playbackBloc.add(OnPositionChange(position.inMilliseconds));
+    widget.player.onPositionChanged = ((position) {
+      playbackBloc.add(OnPositionChange(position));
     });
-    widget.player.onPlayerStateChanged.listen((state) {
+    widget.player.onStateChanged = ((state) {
       playbackBloc.add(OnStateChange(state));
     });
-    widget.player.onPlayerComplete.listen((event) {
+
+    widget.player.onSamplesChanged = ((samples) {
+      playbackBloc.add(OnSamplesChange(samples));
+    });
+
+    widget.player.onPlayerCompleted = ((event) {
       if (localLibBloc.state.localSongs.isNotEmpty &&
           playbackBloc.state.song != null) {
         var index = playbackBloc.state.index ?? 0;
-        if (index < localLibBloc.state.localSongs.length-1) {
-          playbackBloc.add(OnPlayAtIndex(index + 1));
+        if (index < localLibBloc.state.localSongs.length - 1) {
+          if (playbackBloc.state.playMode == 0) {
+            playbackBloc.add(OnPlayAtIndex(index + 1));
+          } else if (playbackBloc.state.playMode == 1) {
+            playbackBloc.add(OnPlayAtIndex(index));
+          } else if (playbackBloc.state.playMode == -1) {
+            final random = Random();
+            playbackBloc.add(OnPlayAtIndex(random.nextInt(localLibBloc.state.localSongs.length-1)));
+          }
           index = playbackBloc.state.index!;
           playbackBloc.add(OnNewSong(localLibBloc.state.localSongs[index]));
-          widget.player.play(
-              UrlSource(localLibBloc.state.localSongs[index].fileUrl));
+          widget.player.setSource(localLibBloc.state.localSongs[index].fileUrl);
+          widget.player.play();
         } else {
           playbackBloc.add(OnPlayAtIndex(0));
           playbackBloc.add(OnNewSong(localLibBloc.state.localSongs[0]));
-          widget.player.play(
-              UrlSource(localLibBloc.state.localSongs[0].fileUrl));
+          widget.player.setSource(localLibBloc.state.localSongs[0].fileUrl);
+          widget.player.play();
         }
       }
     });
@@ -87,12 +100,6 @@ class _CustomScaffoldState extends State<CustomScaffold> {
     Drawer? drawer;
     if (MediaQuery.of(context).size.width < 500) {
       appBar = AppBar(
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {},
-          ),
-        ],
         title: Text(
           "usicat",
           style: TextStyle(
@@ -117,8 +124,7 @@ class _CustomScaffoldState extends State<CustomScaffold> {
               decoration: BoxDecoration(color: Colors.blue),
               child: Text(
                 "usicat",
-                style: TextStyle(
-                    fontFamily: "Itim", fontSize: 24, color: Colors.white),
+                style: TextStyle(fontFamily: "Itim", fontSize: 24),
               ),
             ),
             ListTile(
@@ -186,8 +192,11 @@ class _CustomScaffoldState extends State<CustomScaffold> {
             child: Container(
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height,
-              decoration:
-                  BoxDecoration(color: Colors.white.withAlpha(255 ~/ 2)),
+              decoration: BoxDecoration(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .surface
+                      .withAlpha(255 ~/ 2)),
             ),
           )),
           Row(

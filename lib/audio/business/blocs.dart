@@ -1,6 +1,7 @@
-import 'package:audioplayers/audioplayers.dart';
+import 'package:audiopc/audiopc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:usicat/audio/data/repository/audio_repository.dart';
 import 'package:usicat/audio/data/service/local_lib.dart';
 import 'package:usicat/audio/data/service/service.dart';
@@ -9,8 +10,8 @@ import 'package:stream_transform/stream_transform.dart';
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 
-part 'event.dart';
-part 'state.dart';
+part 'events.dart';
+part 'states.dart';
 
 const throttleDuration = Duration(milliseconds: 100);
 
@@ -180,6 +181,8 @@ final class PlaybackBloc extends Bloc<PlaybackEvent, PlaybackState> {
     on<OnDurationChange>(_onDurationChange);
     on<OnStateChange>(_onStateChange);
     on<OnPlayAtIndex>(_playAt);
+    on<OnSamplesChange>(_onSampleChange);
+    on<OnPlayModeChange>(_onPlayModeChange);
   }
 
   Future<void> _onNewSong(OnNewSong event, Emitter<PlaybackState> emit) async {
@@ -203,5 +206,68 @@ final class PlaybackBloc extends Bloc<PlaybackEvent, PlaybackState> {
 
   Future<void> _playAt(OnPlayAtIndex event, Emitter<PlaybackState> emit) async {
     emit(state.copyWith(index: event.index));
+  }
+
+  Future<void> _onSampleChange(
+      OnSamplesChange event, Emitter<PlaybackState> emit) async {
+    emit(state.copyWith(samples: event.samples));
+  }
+
+  Future<void> _onPlayModeChange(
+      OnPlayModeChange event, Emitter<PlaybackState> emit) async {
+    emit(state.copyWith(playMode: event.mode));
+  }
+}
+
+final class GlobalUIBloc extends Bloc<GlobalUIEvent, GlobalUIState> {
+
+  final sharedPref = SharedPreferencesAsync();
+
+  GlobalUIBloc(super.initialState) {
+    on(_onChangeTheme);
+    on(_onLoadSettings);
+  }
+
+  Future<void> _onChangeTheme(OnChangeTheme event, Emitter<GlobalUIState> emit) async {
+    emit(state.copyWith(isDark: event.isDark));
+    await sharedPref.setBool('isDark', event.isDark);
+  }
+
+  Future<void> _onLoadSettings(OnLoadSettings event, Emitter<GlobalUIState> emit) async {
+    final isDark = await sharedPref.getBool('isDark');
+    if (isDark == null) {
+      await sharedPref.setBool('isDark', true);
+      emit(state.copyWith(isDark: true));
+    } else {
+      emit(state.copyWith(isDark: isDark));
+    }
+  }
+
+}
+
+// extension method for color scheme
+extension ThemeExtension on ColorScheme {
+  ColorScheme copyWith({
+    Color? primary,
+    Color? secondary,
+    Color? surface,
+    Color? error,
+    Color? onPrimary,
+    Color? onSecondary,
+    Color? onSurface,
+    Color? onError,
+    Brightness? brightness,
+  }) {
+    return ColorScheme(
+      primary: primary ?? this.primary,
+      secondary: secondary ?? this.secondary,
+      surface: surface ?? this.surface,
+      error: error ?? this.error,
+      onPrimary: onPrimary ?? this.onPrimary,
+      onSecondary: onSecondary ?? this.onSecondary,
+      onSurface: onSurface ?? this.onSurface,
+      onError: onError ?? this.onError,
+      brightness: brightness ?? this.brightness,
+    );
   }
 }

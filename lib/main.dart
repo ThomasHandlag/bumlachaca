@@ -1,8 +1,10 @@
-import 'package:audioplayers/audioplayers.dart';
+import 'package:audiopc/audiopc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:usicat/audio/business/blocs.dart';
 import 'package:usicat/audio/data/service/local_lib.dart';
 import 'package:usicat/layouts/custom_scaffold.dart';
 import 'package:usicat/layouts/default.dart';
@@ -39,11 +41,11 @@ Future<void> register(String scheme) async {
   regKey.createKey(protocolCmdRegKey).createValue(protocolCmdRegValue);
 }
 
-AudioPlayer? audioPlayer;
+Audiopc? audioPlayer;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  audioPlayer = AudioPlayer();
+  audioPlayer = Audiopc();
   //initialize database
   await Supabase.initialize(
     url: 'https://yixrncvqpwbtjztmkenx.supabase.co',
@@ -57,9 +59,16 @@ Future<void> main() async {
   }
 
   DatabaseHelper();
-
+  final sharedPrefrences = await SharedPreferences.getInstance();
+  var isDark = sharedPrefrences.getBool('isDark');
+  if (isDark == null) {
+    sharedPrefrences.setBool('isDark', true);
+    isDark = true;
+  }
   // Bloc.observer = MusicAppBlocObserver();
-  runApp(const MusicApp());
+  runApp(BlocProvider(
+      create: (context) => GlobalUIBloc(GlobalUIState(isDark: isDark)),
+      child: const MusicApp()));
 }
 
 final GlobalKey<NavigatorState> rootHomeNavigatorKey =
@@ -96,33 +105,53 @@ class MusicApp extends StatefulWidget {
   State<StatefulWidget> createState() => _MusicAppState();
 }
 
+
+
 class _MusicAppState extends State<MusicApp> {
   final ColorScheme colorScheme = const ColorScheme(
     primary: Color(0xFF6200EE),
-    primaryVariant: Color(0xFF3700B3),
     secondary: Color(0xFF03DAC6),
-    secondaryVariant: Color(0xFF018786),
     surface: Color(0xFFFFFFFF),
-    background: Color(0xFFFFFFFF),
     error: Color(0xFFB00020),
     onPrimary: Color(0xFFFFFFFF),
     onSecondary: Color(0xFF000000),
     onSurface: Color(0xFF000000),
-    onBackground: Color(0xFF000000),
     onError: Color(0xFFFFFFFF),
     brightness: Brightness.light,
   );
 
-  final TextSizeScheme textSizeScheme = TextSizeScheme.fromSeed(16.0);
+  final ColorScheme darkTheme = const ColorScheme(
+    primary: Color(0xFFBB86FC),
+    secondary: Color(0xFF03DAC6),
+    surface: Color(0xFF121212),
+    error: Color(0xFFCF6679),
+    onPrimary: Color(0xFF000000),
+    onSecondary: Color(0xFF000066),
+    onSurface: Color(0xFFFFFFFF),
+    onError: Color(0xFF000000),
+    brightness: Brightness.dark,
+  );
 
+  final TextSizeScheme textSizeScheme = TextSizeScheme.fromSeed(16.0);
+  bool isDark = true;
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MusicAppThemeData(
       textSizeScheme,
       colorScheme: colorScheme,
-      child: MaterialApp.router(
+      dartTheme: darkTheme,
+      child: BlocListener<GlobalUIBloc, GlobalUIState>(listener: (context, state) {
+        setState(() {
+          isDark = state.isDark!;
+        });
+      }, child: MaterialApp.router(
         routerConfig: _router,
+        darkTheme: ThemeData.from(colorScheme: darkTheme),
+        theme: ThemeData.from(colorScheme: colorScheme),
+        themeMode: isDark
+            ? ThemeMode.dark
+            : ThemeMode.light,
         localizationsDelegates: const [
           AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
@@ -135,17 +164,17 @@ class _MusicAppState extends State<MusicApp> {
           Locale('vi'),
         ],
         title: 'Musicat',
-        theme: ThemeData(
-          useMaterial3: true,
-        ),
-      ),
+      ),),
     );
   }
 }
 
 class MusicAppThemeData extends InheritedWidget {
   const MusicAppThemeData(this.textSizeScheme,
-      {super.key, required super.child, required this.colorScheme});
+      {super.key,
+      required super.child,
+      required this.colorScheme,
+      required this.dartTheme});
 
   static MusicAppThemeData? maybeOf(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<MusicAppThemeData>();
@@ -158,79 +187,12 @@ class MusicAppThemeData extends InheritedWidget {
   }
 
   final ColorScheme colorScheme;
+  final ColorScheme dartTheme;
   final TextSizeScheme textSizeScheme;
 
   @override
   bool updateShouldNotify(covariant MusicAppThemeData oldWidget) =>
       colorScheme != oldWidget.colorScheme;
-}
-
-class ColorScheme {
-  const ColorScheme({
-    required this.primary,
-    required this.primaryVariant,
-    required this.secondary,
-    required this.secondaryVariant,
-    required this.surface,
-    required this.background,
-    required this.error,
-    required this.onPrimary,
-    required this.onSecondary,
-    required this.onSurface,
-    required this.onBackground,
-    required this.onError,
-    required this.brightness,
-  });
-
-  final Color primary;
-  final Color primaryVariant;
-  final Color secondary;
-  final Color secondaryVariant;
-  final Color surface;
-  final Color background;
-  final Color error;
-  final Color onPrimary;
-  final Color onSecondary;
-  final Color onSurface;
-  final Color onBackground;
-  final Color onError;
-  final Brightness brightness;
-
-  @override
-  operator ==(Object other) {
-    if (identical(this, other)) return true;
-    if (other is! ColorScheme) return false;
-    return primary == other.primary &&
-        primaryVariant == other.primaryVariant &&
-        secondary == other.secondary &&
-        secondaryVariant == other.secondaryVariant &&
-        surface == other.surface &&
-        background == other.background &&
-        error == other.error &&
-        onPrimary == other.onPrimary &&
-        onSecondary == other.onSecondary &&
-        onSurface == other.onSurface &&
-        onBackground == other.onBackground &&
-        onError == other.onError &&
-        brightness == other.brightness;
-  }
-
-  @override
-  int get hashCode {
-    return primary.hashCode ^
-        primaryVariant.hashCode ^
-        secondary.hashCode ^
-        secondaryVariant.hashCode ^
-        surface.hashCode ^
-        background.hashCode ^
-        error.hashCode ^
-        onPrimary.hashCode ^
-        onSecondary.hashCode ^
-        onSurface.hashCode ^
-        onBackground.hashCode ^
-        onError.hashCode ^
-        brightness.hashCode;
-  }
 }
 
 // define a text size scheme

@@ -1,4 +1,4 @@
-part of 'bloc.dart';
+part of 'blocs.dart';
 
 abstract class APIEvent {}
 
@@ -82,19 +82,19 @@ class OnNewSong extends PlaybackEvent {
 }
 
 class OnPositionChange extends PlaybackEvent {
-  final int position;
+  final double position;
 
   OnPositionChange(this.position);
 }
 
 class OnDurationChange extends PlaybackEvent {
-  final int duration;
+  final double duration;
 
   OnDurationChange(this.duration);
 }
 
 class OnStateChange extends PlaybackEvent {
-  final PlayerState state;
+  final AudiopcState state;
 
   OnStateChange(this.state);
 }
@@ -110,3 +110,39 @@ class OnPlayAtIndex extends PlaybackEvent {
 
   OnPlayAtIndex(this.index);
 }
+
+class OnPlayModeChange extends PlaybackEvent {
+  final int mode;
+
+  OnPlayModeChange(this.mode);
+}
+
+class OnSamplesChange extends PlaybackEvent {
+  final List<double> samples;
+
+  OnSamplesChange(this.samples);
+}
+
+
+//
+abstract class GlobalUIEvent {}
+
+class OnChangePage extends GlobalUIEvent {
+  final int index;
+
+  OnChangePage(this.index);
+}
+
+class OnChangeTheme extends GlobalUIEvent {
+  final bool isDark;
+
+  OnChangeTheme(this.isDark);
+}
+
+class OnChangeColorScheme extends GlobalUIEvent {
+  final ColorScheme colorScheme;
+
+  OnChangeColorScheme(this.colorScheme);
+}
+
+class OnLoadSettings extends GlobalUIEvent {}

@@ -1,9 +1,8 @@
 import 'dart:ui';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:usicat/audio/business/bloc.dart';
+import 'package:usicat/audio/business/blocs.dart';
 import 'package:usicat/audio/data/service/service.dart';
 import 'package:usicat/main.dart';
 import 'package:usicat/widgets/audio_widget_context.dart';
@@ -55,9 +54,9 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                             .add(OnNewSong(song));
                         String url = AudioApiService.baseUrl;
                         url = url.replaceAll('/api/v2', '');
-                        AudioWidgetContext.of(context)!.audioPlayer.play(
-                            UrlSource('$url/${song.fileUrl}',
-                                mimeType: 'audio/mpeg'));
+                        AudioWidgetContext.of(context)!.audioPlayer.setSource(
+                              '$url/${song.fileUrl}',
+                            );
                       },
                       child: CustomNetImage(
                           url: song.fileThumb, width: 120, height: 120),
@@ -115,7 +114,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
             height: 250,
             constraints: const BoxConstraints(maxWidth: 500),
             decoration: BoxDecoration(
-              color: Colors.grey.shade200.withAlpha(255 ~/ 2),
+              color: Theme.of(context).colorScheme.surface.withAlpha(255 ~/ 2),
             ),
           ),
         )),
@@ -264,9 +263,9 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                   url = url.replaceAll('/api/v2', '');
                                   AudioWidgetContext.of(context)!
                                       .audioPlayer
-                                      .play(UrlSource(
-                                          '$url/${state.newSongs[0].fileUrl}',
-                                          mimeType: 'audio/mpeg'));
+                                      .setSource(
+                                        '$url/${state.newSongs[0].fileUrl}',
+                                      );
                                 }
                               },
                               icon: const Icon(Icons.play_arrow))

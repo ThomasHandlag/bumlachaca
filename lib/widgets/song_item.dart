@@ -1,7 +1,6 @@
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:usicat/audio/business/bloc.dart';
+import 'package:usicat/audio/business/blocs.dart';
 import 'package:usicat/audio/data/service/service.dart';
 import 'package:usicat/widgets/audio_widget_context.dart';
 import 'package:usicat/widgets/custom_netimage.dart';
@@ -19,18 +18,16 @@ class _SongItemState extends State<SongItem> {
   Widget build(BuildContext context) {
     return Container(
         decoration: BoxDecoration(
-          color: const Color(0xA1CEC7FF),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Material(
-            color: const Color(0xA1CEC7FF),
             borderRadius: BorderRadius.circular(10),
             child: InkWell(
                 onTap: () {
                   BlocProvider.of<PlaybackBloc>(context)
                       .add(OnNewSong(widget.song));
-                  AudioWidgetContext.of(context)!.audioPlayer.play(UrlSource(
-                      '${AudioApiService.baseUrl.replaceAll("/api/v2", '')}/${widget.song.fileUrl}'));
+                  AudioWidgetContext.of(context)!.audioPlayer.setSource(
+                      '${AudioApiService.baseUrl.replaceAll("/api/v2", '')}/${widget.song.fileUrl}');
                 },
                 splashColor: const Color(0xA1CEC7FF),
                 borderRadius: BorderRadius.circular(10),

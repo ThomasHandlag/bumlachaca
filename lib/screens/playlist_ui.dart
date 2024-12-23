@@ -1,7 +1,7 @@
-import 'package:audioplayers/audioplayers.dart';
+import 'package:audiopc/audiopc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:usicat/audio/business/bloc.dart';
+import 'package:usicat/audio/business/blocs.dart';
 import 'package:usicat/audio/data/service/service.dart';
 import 'package:usicat/widgets/audio_widget_context.dart';
 import 'package:usicat/widgets/error_container.dart';
@@ -88,7 +88,7 @@ class _PlaylistUIState extends State<PlaylistUI> {
           ),
           BlocBuilder<LocalLibBloc, LocalLibState>(
               builder: (context, state) {
-                if (state.cacheSongs.isEmpty) {
+                if (state.playLists.isEmpty) {
                   return const Center(
                     child: ErrorContainer(
                       width: 300,
@@ -134,7 +134,7 @@ class DetailPlayList extends StatefulWidget {
   final LocalLibBloc bloc;
   final PlaybackBloc? playbackBloc;
   final List<Song> songs;
-  final AudioPlayer? audioPlayer;
+  final Audiopc? audioPlayer;
   const DetailPlayList(
       {super.key,
       required this.id,
@@ -175,7 +175,6 @@ class _DetailPlayListState extends State<DetailPlayList> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                color: Colors.transparent,
                 padding: const EdgeInsets.all(10),
                 height: kToolbarHeight + 10,
                 child: Row(
@@ -252,8 +251,8 @@ class _DetailPlayListState extends State<DetailPlayList> {
                           widget.playbackBloc!.add(OnPlayAtIndex(i));
                           widget.playbackBloc!
                               .add(OnNewSong(widget.bloc.state.localSongs[i]));
-                          widget.audioPlayer!
-                              .play(UrlSource(widget.bloc.state.localSongs[i].fileUrl));
+                          widget.audioPlayer!.setSource(
+                              widget.bloc.state.localSongs[i].fileUrl);
                         }
                       },
                       onLongPress: () {

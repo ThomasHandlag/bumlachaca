@@ -120,16 +120,20 @@ class DatabaseHelper {
   Future<List<PlayList>> getPlayLists() async {
     final db = await database;
     final List<Map<String, dynamic>> counts = await db.rawQuery(
-        "SELECT COUNT(songId) as scount FROM sop GROUP BY playlistId");
+        "SELECT *, COUNT(songId) as scount FROM sop GROUP BY playlistId");
     final List<Map<String, dynamic>> maps = await db.query('playlists');
-    debugPrint(counts.length.toString());
-    final List<PlayList> playList = List.generate(maps.length, (i) {
-      return PlayList(
-        id: maps[i]['id'],
-        name: maps[i]['name'],
-        count: counts.isNotEmpty ? counts[i]['scount'] : 0,
-      );
-    });
+    final List<PlayList> playList = [];
+    for (final item in counts) {
+      final count = item['scount'] as int;
+      try {
+        final play =
+            maps.firstWhere((element) => element['id'] == item['playlistId']);
+        playList
+            .add(PlayList(id: play['id'], name: play['name'], count: count));
+      } catch (e) {
+        debugPrint(e.toString());
+      }
+    }
 
     return playList;
   }

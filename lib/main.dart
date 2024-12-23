@@ -48,9 +48,9 @@ Future<void> main() async {
   audioPlayer = Audiopc();
   //initialize database
   await Supabase.initialize(
-    url: 'https://yixrncvqpwbtjztmkenx.supabase.co',
+    url: '',
     anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlpeHJuY3ZxcHdidGp6dG1rZW54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjQ0OTYyNTQsImV4cCI6MjA0MDA3MjI1NH0.RzNZzoPBJbEt4u5ertugmVqlxwrcCfHVxayJ-PuqKnQ',
+        '',
   );
   if (platform.isWindows) {
     await register('usicat');
